@@ -1,0 +1,28 @@
+@model IEnumerable<PerformanceReview>
+@{
+    ViewData["Title"] = "تقييمات الأداء";
+}
+
+<h1>تقييمات الأداء</h1>
+<a class="btn btn-primary mb-3" asp-action="Create">إضافة تقييم</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>الموظف</th>
+            <th>تاريخ التقييم</th>
+            <th>التقييم العام</th>
+            <th>ملاحظات</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var review in Model)
+        {
+            <tr>
+                <td>@review.Employee?.FullName</td>
+                <td>@review.ReviewDate.ToString("yyyy-MM-dd")</td>
+                <td>@review.OverallScore</td>
+                <td>@review.Comments</td>
+            </tr>
+        }
+    </tbody>
+</table>

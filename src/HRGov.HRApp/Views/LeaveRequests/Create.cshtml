@@ -1,0 +1,41 @@
+@model LeaveRequest
+@{
+    ViewData["Title"] = "تسجيل إجازة";
+}
+
+<h1>تسجيل إجازة</h1>
+
+<form asp-action="Create" method="post" class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label" asp-for="EmployeeId"></label>
+        <select class="form-select" asp-for="EmployeeId" asp-items="ViewBag.Employees"></select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label" asp-for="StartDate"></label>
+        <input class="form-control" type="date" asp-for="StartDate" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label" asp-for="EndDate"></label>
+        <input class="form-control" type="date" asp-for="EndDate" />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" asp-for="LeaveType"></label>
+        <select class="form-select" asp-for="LeaveType" asp-items="Html.GetEnumSelectList<LeaveType>()"></select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" asp-for="Status"></label>
+        <select class="form-select" asp-for="Status" asp-items="Html.GetEnumSelectList<LeaveStatus>()"></select>
+    </div>
+    <div class="col-12">
+        <label class="form-label" asp-for="Notes"></label>
+        <textarea class="form-control" asp-for="Notes"></textarea>
+    </div>
+    <div class="col-12">
+        <button class="btn btn-primary" type="submit">حفظ</button>
+        <a class="btn btn-secondary" asp-action="Index">إلغاء</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

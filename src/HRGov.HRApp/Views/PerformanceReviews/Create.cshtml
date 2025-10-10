@@ -1,0 +1,37 @@
+@model PerformanceReview
+@{
+    ViewData["Title"] = "إضافة تقييم";
+}
+
+<h1>إضافة تقييم أداء</h1>
+
+<form asp-action="Create" method="post" class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="EmployeeId" class="form-label"></label>
+        <select asp-for="EmployeeId" class="form-select" asp-items="ViewBag.Employees"></select>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="ReviewDate" class="form-label"></label>
+        <input asp-for="ReviewDate" class="form-control" type="date" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="OverallScore" class="form-label"></label>
+        <input asp-for="OverallScore" class="form-control" type="number" min="1" max="5" />
+    </div>
+    <div class="col-12">
+        <label asp-for="Comments" class="form-label"></label>
+        <textarea asp-for="Comments" class="form-control"></textarea>
+    </div>
+    <div class="col-12">
+        <label asp-for="DevelopmentPlan" class="form-label"></label>
+        <textarea asp-for="DevelopmentPlan" class="form-control"></textarea>
+    </div>
+    <div class="col-12">
+        <button class="btn btn-primary" type="submit">حفظ</button>
+        <a class="btn btn-secondary" asp-action="Index">إلغاء</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

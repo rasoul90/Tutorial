@@ -1,0 +1,17 @@
+@model EmployeeFormViewModel
+@{
+    ViewData["Title"] = "تعديل موظف";
+}
+
+<h1>تعديل بيانات الموظف</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <partial name="_EmployeeForm" model="Model" />
+    <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">إلغاء</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

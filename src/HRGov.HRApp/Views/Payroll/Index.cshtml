@@ -1,0 +1,32 @@
+@model IEnumerable<PayrollRecord>
+@{
+    ViewData["Title"] = "سجلات الرواتب";
+}
+
+<h1>سجلات الرواتب</h1>
+<a class="btn btn-primary mb-3" asp-action="Create">إضافة سجل</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>الموظف</th>
+            <th>تاريخ الراتب</th>
+            <th>الراتب الأساسي</th>
+            <th>البدلات</th>
+            <th>الاستقطاعات</th>
+            <th>الصافي</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model)
+        {
+            <tr>
+                <td>@record.Employee?.FullName</td>
+                <td>@record.PayrollDate.ToString("yyyy-MM-dd")</td>
+                <td>@record.BasicSalary.ToString("N0")</td>
+                <td>@record.Allowances.ToString("N0")</td>
+                <td>@record.Deductions.ToString("N0")</td>
+                <td>@record.NetSalary.ToString("N0")</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,62 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "لوحة التحكم";
+}
+
+<h1 class="mb-4">لوحة التحكم</h1>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">عدد الموظفين الكلي</h5>
+                <p class="display-6">@Model.TotalEmployees</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">الموظفون النشطون</h5>
+                <p class="display-6 text-success">@Model.ActiveEmployees</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">إجازات قيد الموافقة</h5>
+                <p class="display-6 text-warning">@Model.PendingLeaveRequests</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">إجمالي الرواتب للشهر الحالي</h5>
+                <p class="display-6 text-primary">@Model.TotalMonthlyPayroll.ToString("N0") د.ع</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="mt-4">إحصائيات الدوائر</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>الدائرة</th>
+            <th>عدد الموظفين</th>
+            <th>متوسط الراتب</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var department in Model.Departments)
+        {
+            <tr>
+                <td>@department.Name</td>
+                <td>@department.EmployeeCount</td>
+                <td>@department.AverageSalary.ToString("N0") د.ع</td>
+            </tr>
+        }
+    </tbody>
+</table>

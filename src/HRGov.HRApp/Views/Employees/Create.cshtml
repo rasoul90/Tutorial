@@ -1,0 +1,16 @@
+@model EmployeeFormViewModel
+@{
+    ViewData["Title"] = "إضافة موظف";
+}
+
+<h1>إضافة موظف جديد</h1>
+
+<form asp-action="Create" method="post">
+    <partial name="_EmployeeForm" model="Model" />
+    <button type="submit" class="btn btn-primary">حفظ</button>
+    <a asp-action="Index" class="btn btn-secondary">إلغاء</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

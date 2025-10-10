@@ -1,0 +1,28 @@
+@model IEnumerable<TrainingSession>
+@{
+    ViewData["Title"] = "البرامج التدريبية";
+}
+
+<h1>البرامج التدريبية</h1>
+<a class="btn btn-primary mb-3" asp-action="Create">إضافة برنامج</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>العنوان</th>
+            <th>الجهة</th>
+            <th>الفترة</th>
+            <th>عدد المشاركين</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var session in Model)
+        {
+            <tr>
+                <td>@session.Title</td>
+                <td>@session.Provider</td>
+                <td>@session.StartDate.ToString("yyyy-MM-dd") - @session.EndDate.ToString("yyyy-MM-dd")</td>
+                <td>@session.Participants.Count</td>
+            </tr>
+        }
+    </tbody>
+</table>

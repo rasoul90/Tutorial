@@ -1,0 +1,24 @@
+@model HRGov.HRApp.Models.Employee
+@{
+    ViewData["Title"] = "تفاصيل الموظف";
+}
+
+<h1>تفاصيل الموظف</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">الاسم الكامل</dt>
+    <dd class="col-sm-9">@Model.FullName</dd>
+    <dt class="col-sm-3">الرقم الوطني</dt>
+    <dd class="col-sm-9">@Model.NationalId</dd>
+    <dt class="col-sm-3">الدائرة</dt>
+    <dd class="col-sm-9">@Model.Department?.Name</dd>
+    <dt class="col-sm-3">المسمى الوظيفي</dt>
+    <dd class="col-sm-9">@Model.JobTitle?.Name</dd>
+    <dt class="col-sm-3">الراتب الأساسي</dt>
+    <dd class="col-sm-9">@Model.BaseSalary.ToString("N0") د.ع</dd>
+    <dt class="col-sm-3">الحالة</dt>
+    <dd class="col-sm-9">@Model.Status</dd>
+</dl>
+
+<a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model.Id">تعديل</a>
+<a class="btn btn-secondary" asp-action="Index">عودة</a>

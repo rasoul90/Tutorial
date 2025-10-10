@@ -1,0 +1,42 @@
+@model IEnumerable<EmployeeSummaryViewModel>
+@{
+    ViewData["Title"] = "سجل الموظفين";
+}
+
+<h1 class="mb-3">سجل الموظفين</h1>
+<div class="mb-3">
+    <a class="btn btn-primary" asp-action="Create">إضافة موظف</a>
+</div>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>الاسم</th>
+            <th>الدائرة</th>
+            <th>المسمى الوظيفي</th>
+            <th>الحالة</th>
+            <th>تاريخ التعيين</th>
+            <th>الراتب الأساسي</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var employee in Model)
+        {
+            <tr>
+                <td>@employee.FullName</td>
+                <td>@employee.Department</td>
+                <td>@employee.JobTitle</td>
+                <td>@employee.Status</td>
+                <td>@employee.HireDate.ToString("yyyy-MM-dd")</td>
+                <td>@employee.BaseSalary.ToString("N0") د.ع</td>
+                <td>
+                    <a class="btn btn-sm btn-secondary" asp-action="Details" asp-route-id="@employee.Id">عرض</a>
+                    <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="@employee.Id">تعديل</a>
+                    <form asp-action="Delete" asp-route-id="@employee.Id" method="post" class="d-inline" onsubmit="return confirm('تأكيد الحذف؟');">
+                        <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

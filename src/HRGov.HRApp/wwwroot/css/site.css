@@ -1,0 +1,8 @@
+body {
+    font-family: "Noto Kufi Arabic", "Tahoma", sans-serif;
+    background-color: #f7f9fc;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}

@@ -1,0 +1,32 @@
+@model IEnumerable<LeaveRequest>
+@{
+    ViewData["Title"] = "طلبات الإجازة";
+}
+
+<h1>طلبات الإجازة</h1>
+<a class="btn btn-primary mb-3" asp-action="Create">تسجيل إجازة</a>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>الموظف</th>
+            <th>نوع الإجازة</th>
+            <th>الفترة</th>
+            <th>الحالة</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var leave in Model)
+        {
+            <tr>
+                <td>@leave.Employee?.FullName</td>
+                <td>@leave.LeaveType</td>
+                <td>@leave.StartDate.ToString("yyyy-MM-dd") - @leave.EndDate.ToString("yyyy-MM-dd")</td>
+                <td>@leave.Status</td>
+                <td>
+                    <a class="btn btn-sm btn-secondary" asp-action="Review" asp-route-id="@leave.Id">مراجعة</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
