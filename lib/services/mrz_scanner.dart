@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' show Image, Rect, Size, decodeImageFromList;
 
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:mrz_parser/mrz_parser.dart';
 
 import '../models/mrz_data.dart';
 import '../models/mrz_scan_result.dart';
@@ -23,12 +23,10 @@ class MrzScannerService {
       throw const FormatException('تعذر العثور على MRZ بشكل واضح. حاول مجدداً.');
     }
 
-    final mrzText = mrzExtraction.lines.join('\n');
-    final parsed = MRZParser().parse(mrzText);
-    final data = MrzData.fromResult(parsed, mrzExtraction.lines);
+    final data = MrzData.fromLines(mrzExtraction.lines);
 
     final imageBytes = await imageFile.readAsBytes();
-    final Image uiImage = await decodeImageFromList(Uint8List.fromList(imageBytes));
+    final Image uiImage = await _decodeImage(imageBytes);
     final boundingBox = mrzExtraction.boundingBox;
 
     return MrzScanResult(
@@ -39,6 +37,12 @@ class MrzScannerService {
   }
 
   Future<void> dispose() => _recognizer.close();
+
+  Future<Image> _decodeImage(Uint8List bytes) {
+    final completer = Completer<Image>();
+    decodeImageFromList(bytes, (image) => completer.complete(image));
+    return completer.future;
+  }
 
   _MrzExtraction? _extractMrzLines(RecognizedText recognized) {
     final candidateLines = <_RecognizedLine>[];
