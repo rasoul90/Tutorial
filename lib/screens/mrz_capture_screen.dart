@@ -4,7 +4,8 @@ import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
+import 'package:google_mlkit_commons/google_mlkit_commons.dart'
+    as mlkit_commons;
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../models/document_type.dart';
@@ -201,7 +202,7 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
     }
   }
 
-  InputImage _buildInputImage(CameraImage image, int rotation) {
+  mlkit_commons.InputImage _buildInputImage(CameraImage image, int rotation) {
     final WriteBuffer allBytes = WriteBuffer();
     for (final Plane plane in image.planes) {
       allBytes.putUint8List(plane.bytes);
@@ -213,17 +214,17 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
       image.height.toDouble(),
     );
 
-    final InputImageRotation imageRotation =
-        InputImageRotationValue.fromRawValue(rotation) ??
-            InputImageRotation.rotation0deg;
+    final mlkit_commons.InputImageRotation imageRotation =
+        mlkit_commons.InputImageRotationValue.fromRawValue(rotation) ??
+            mlkit_commons.InputImageRotation.rotation0deg;
 
-    final InputImageFormat inputImageFormat =
-        InputImageFormatValue.fromRawValue(image.format.raw) ??
-            InputImageFormat.nv21;
+    final mlkit_commons.InputImageFormat inputImageFormat =
+        mlkit_commons.InputImageFormatValue.fromRawValue(image.format.raw) ??
+            mlkit_commons.InputImageFormat.nv21;
 
     final planeData = image.planes
         .map(
-          (plane) => InputImagePlaneMetadata(
+          (plane) => mlkit_commons.InputImagePlaneMetadata(
             bytesPerRow: plane.bytesPerRow,
             height: plane.height,
             width: plane.width,
@@ -231,14 +232,14 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
         )
         .toList();
 
-    final metadata = InputImageMetadata(
+    final metadata = mlkit_commons.InputImageMetadata(
       size: imageSize,
       rotation: imageRotation,
       format: inputImageFormat,
       planeData: planeData,
     );
 
-    return InputImage.fromBytes(
+    return mlkit_commons.InputImage.fromBytes(
       bytes: bytes,
       metadata: metadata,
     );

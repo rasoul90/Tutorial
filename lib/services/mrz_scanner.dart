@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' show Image, Rect, Size, decodeImageFromList;
 
+import 'package:google_mlkit_commons/google_mlkit_commons.dart'
+    as mlkit_commons;
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../models/mrz_data.dart';
@@ -14,7 +16,8 @@ class MrzScannerService {
 
   final TextRecognizer _recognizer;
 
-  Future<MrzDetection?> detectMrz(InputImage inputImage, Size imageSize) async {
+  Future<MrzDetection?> detectMrz(
+      mlkit_commons.InputImage inputImage, Size imageSize) async {
     final recognized = await _recognizer.processImage(inputImage);
     final extraction = _extractMrzLines(recognized);
     if (extraction == null) {
@@ -29,7 +32,7 @@ class MrzScannerService {
   }
 
   Future<MrzScanResult> scanImage(File imageFile) async {
-    final inputImage = InputImage.fromFile(imageFile);
+    final inputImage = mlkit_commons.InputImage.fromFile(imageFile);
     final recognized = await _recognizer.processImage(inputImage);
 
     final mrzExtraction = _extractMrzLines(recognized);
