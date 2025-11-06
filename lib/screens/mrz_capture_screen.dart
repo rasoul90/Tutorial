@@ -231,16 +231,16 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
         )
         .toList();
 
-    final inputImageData = InputImageData(
+    final metadata = InputImageMetadata(
       size: imageSize,
-      imageRotation: imageRotation,
-      inputImageFormat: inputImageFormat,
+      rotation: imageRotation,
+      format: inputImageFormat,
       planeData: planeData,
     );
 
     return InputImage.fromBytes(
       bytes: bytes,
-      inputImageData: inputImageData,
+      metadata: metadata,
     );
   }
 
