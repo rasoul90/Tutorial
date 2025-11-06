@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -201,29 +201,23 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
     }
   }
 
-  Uint8List _concatenatePlanes(List<Plane> planes) {
-    final totalLength = planes.fold<int>(0, (sum, plane) => sum + plane.bytes.length);
-    final bytes = Uint8List(totalLength);
-    var offset = 0;
-    for (final plane in planes) {
-      bytes.setRange(offset, offset + plane.bytes.length, plane.bytes);
-      offset += plane.bytes.length;
-    }
-    return bytes;
-  }
-
   InputImage _buildInputImage(CameraImage image, int rotation) {
-    final bytes = _concatenatePlanes(image.planes);
+    final WriteBuffer allBytes = WriteBuffer();
+    for (final Plane plane in image.planes) {
+      allBytes.putUint8List(plane.bytes);
+    }
+    final bytes = allBytes.done().buffer.asUint8List();
 
     final Size imageSize = Size(
       image.width.toDouble(),
       image.height.toDouble(),
     );
 
-    final imageRotation = InputImageRotationValue.fromRawValue(rotation) ??
-        InputImageRotation.rotation0deg;
+    final InputImageRotation imageRotation =
+        InputImageRotationValue.fromRawValue(rotation) ??
+            InputImageRotation.rotation0deg;
 
-    final inputImageFormat =
+    final InputImageFormat inputImageFormat =
         InputImageFormatValue.fromRawValue(image.format.raw) ??
             InputImageFormat.nv21;
 
@@ -237,14 +231,16 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
         )
         .toList();
 
+    final inputImageData = InputImageData(
+      size: imageSize,
+      imageRotation: imageRotation,
+      inputImageFormat: inputImageFormat,
+      planeData: planeData,
+    );
+
     return InputImage.fromBytes(
       bytes: bytes,
-      metadata: InputImageMetadata(
-        size: imageSize,
-        rotation: imageRotation,
-        format: inputImageFormat,
-        planeData: planeData,
-      ),
+      inputImageData: inputImageData,
     );
   }
 
