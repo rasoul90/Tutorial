@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -149,17 +150,52 @@ class _MrzGuidePainter extends CustomPainter {
   }
 
   Rect _cardRect(Size size) {
-    final aspectRatio = 85.6 / 54.0; // ID-1 ratio
-    var cardWidth = size.width * 0.72;
-    var cardHeight = cardWidth / aspectRatio;
-    final maxHeight = size.height * 0.8;
+    const portraitAspect = 54.0 / 85.6; // ID-1 ratio rotated 90°
+    final detection = detectedMrz;
+
+    if (detection != null) {
+      final detectionRect = Rect.fromLTRB(
+        detection.left * size.width,
+        detection.top * size.height,
+        detection.right * size.width,
+        detection.bottom * size.height,
+      );
+
+      final widthFromHeight =
+          detectionRect.height * portraitAspect / 0.28; // reverse MRZ height
+      final widthFromWidth = detectionRect.width / 0.84; // reverse MRZ margins
+
+      double cardWidth = math.max(widthFromHeight, widthFromWidth);
+      cardWidth =
+          cardWidth.clamp(size.width * 0.3, size.width * 0.95).toDouble();
+
+      double cardHeight = cardWidth / portraitAspect;
+      if (cardHeight > size.height * 0.95) {
+        cardHeight = size.height * 0.95;
+        cardWidth = cardHeight * portraitAspect;
+      }
+
+      final horizontalMargin = cardWidth * 0.08;
+      double cardLeft = detectionRect.left - horizontalMargin;
+      double cardBottom = detectionRect.bottom + horizontalMargin;
+
+      cardLeft = cardLeft.clamp(0.0, size.width - cardWidth).toDouble();
+      cardBottom = cardBottom.clamp(cardHeight, size.height).toDouble();
+      final cardTop = cardBottom - cardHeight;
+
+      return Rect.fromLTWH(cardLeft, cardTop, cardWidth, cardHeight);
+    }
+
+    var cardWidth = size.width * 0.58;
+    var cardHeight = cardWidth / portraitAspect;
+    final maxHeight = size.height * 0.82;
 
     if (cardHeight > maxHeight) {
       cardHeight = maxHeight;
-      cardWidth = cardHeight * aspectRatio;
+      cardWidth = cardHeight * portraitAspect;
     }
 
-    final top = (size.height - cardHeight) * 0.35;
+    final top = (size.height - cardHeight) * 0.22;
     final left = (size.width - cardWidth) / 2;
 
     return Rect.fromLTWH(left, top, cardWidth, cardHeight);
