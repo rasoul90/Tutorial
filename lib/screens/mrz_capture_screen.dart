@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../models/document_type.dart';
@@ -199,12 +201,19 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
     }
   }
 
-  InputImage _buildInputImage(CameraImage image, int rotation) {
-    final ui.WriteBuffer allBytes = ui.WriteBuffer();
-    for (final plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
+  Uint8List _concatenatePlanes(List<Plane> planes) {
+    final totalLength = planes.fold<int>(0, (sum, plane) => sum + plane.bytes.length);
+    final bytes = Uint8List(totalLength);
+    var offset = 0;
+    for (final plane in planes) {
+      bytes.setRange(offset, offset + plane.bytes.length, plane.bytes);
+      offset += plane.bytes.length;
     }
-    final bytes = allBytes.done().buffer.asUint8List();
+    return bytes;
+  }
+
+  InputImage _buildInputImage(CameraImage image, int rotation) {
+    final bytes = _concatenatePlanes(image.planes);
 
     final Size imageSize = Size(
       image.width.toDouble(),
@@ -230,10 +239,10 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
 
     return InputImage.fromBytes(
       bytes: bytes,
-      inputImageData: InputImageData(
+      metadata: InputImageMetadata(
         size: imageSize,
-        imageRotation: imageRotation,
-        inputImageFormat: inputImageFormat,
+        rotation: imageRotation,
+        format: inputImageFormat,
         planeData: planeData,
       ),
     );
