@@ -160,6 +160,11 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
                     );
                   }
 
+                  final previewSize = controller.value.previewSize;
+                  final aspectRatio = previewSize != null
+                      ? previewSize.height / previewSize.width
+                      : 1 / controller.value.aspectRatio;
+
                   return Column(
                     children: [
                       Expanded(
@@ -167,7 +172,7 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
                           children: [
                             Center(
                               child: AspectRatio(
-                                aspectRatio: controller.value.aspectRatio,
+                                aspectRatio: aspectRatio,
                                 child: Stack(
                                   fit: StackFit.expand,
                                   children: [
