@@ -106,8 +106,8 @@ class MrzData {
       expiryDateRaw: expiryDateRaw,
       expiryDateCheckDigit: expiryDateCheckDigit,
       sex: sex,
-      primaryIdentifier: nameParts.$1,
-      secondaryIdentifier: nameParts.$2,
+      primaryIdentifier: nameParts.primary,
+      secondaryIdentifier: nameParts.secondary,
       personalNumber: personalNumber,
       personalNumberCheckDigit: personalNumberCheckDigit,
       compositeCheckDigit: compositeCheckDigit,
@@ -149,22 +149,22 @@ class MrzData {
       expiryDateRaw: expiryDateRaw,
       expiryDateCheckDigit: expiryDateCheckDigit,
       sex: sex,
-      primaryIdentifier: names.$1,
-      secondaryIdentifier: names.$2,
+      primaryIdentifier: names.primary,
+      secondaryIdentifier: names.secondary,
       personalNumber: personalNumber,
       personalNumberCheckDigit: personalNumberCheckDigit,
       compositeCheckDigit: compositeCheckDigit,
     );
   }
 
-  static (String, String) _extractNames(String raw) {
+  static _MrzNames _extractNames(String raw) {
     final cleaned = raw.split('<<');
     final primary = cleaned.isNotEmpty ? _cleanWhitespace(cleaned.first) : '';
     if (cleaned.length <= 1) {
-      return (primary, '');
+      return _MrzNames(primary: primary, secondary: '');
     }
     final secondary = _cleanWhitespace(cleaned.sublist(1).join(' '));
-    return (primary, secondary);
+    return _MrzNames(primary: primary, secondary: secondary);
   }
 
   static String _pad(String value, int length) {
@@ -197,4 +197,11 @@ class MrzData {
 
     return DateTime(century + year, month, day);
   }
+}
+
+class _MrzNames {
+  final String primary;
+  final String secondary;
+
+  const _MrzNames({required this.primary, required this.secondary});
 }
