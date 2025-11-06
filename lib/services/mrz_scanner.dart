@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' show Image, Rect, Size, decodeImageFromList;
 
@@ -24,10 +25,14 @@ class MrzScannerService {
       return null;
     }
 
+    final cardBoundingBox =
+        _estimateCardRect(extraction.boundingBox, imageSize);
+
     return MrzDetection(
       lines: extraction.lines,
       boundingBox: extraction.boundingBox,
       imageSize: imageSize,
+      cardBoundingBox: cardBoundingBox,
     );
   }
 
@@ -45,11 +50,16 @@ class MrzScannerService {
     final imageBytes = await imageFile.readAsBytes();
     final Image uiImage = await _decodeImage(imageBytes);
     final boundingBox = mrzExtraction.boundingBox;
+    final cardBoundingBox = _estimateCardRect(
+      mrzExtraction.boundingBox,
+      Size(uiImage.width.toDouble(), uiImage.height.toDouble()),
+    );
 
     return MrzScanResult(
       data: data,
       imageSize: Size(uiImage.width.toDouble(), uiImage.height.toDouble()),
       boundingBox: boundingBox,
+      cardBoundingBox: cardBoundingBox,
     );
   }
 
@@ -134,6 +144,61 @@ class MrzScannerService {
     }
     return merged ?? Rect.zero;
   }
+
+  Rect _estimateCardRect(Rect mrzRect, Size imageSize) {
+    const horizontalMarginRatio = 0.08;
+    const mrzHeightRatio = 0.28;
+    const id1Aspect = 85.6 / 54.0;
+
+    if (mrzRect.isEmpty) {
+      return mrzRect;
+    }
+
+    final cardWidthFromMrzWidth =
+        mrzRect.width / (1 - (horizontalMarginRatio * 2));
+    final cardHeightFromMrzHeight = mrzRect.height / mrzHeightRatio;
+    final cardWidthFromHeight = cardHeightFromMrzHeight * id1Aspect;
+
+    double cardWidth = math.max(cardWidthFromMrzWidth, cardWidthFromHeight);
+    cardWidth = cardWidth.clamp(0.0, imageSize.width);
+    double cardHeight = cardWidth / id1Aspect;
+    if (cardHeight > imageSize.height) {
+      cardHeight = imageSize.height;
+      cardWidth = cardHeight * id1Aspect;
+    }
+
+    final horizontalMargin = cardWidth * horizontalMarginRatio;
+    double cardLeft = mrzRect.left - horizontalMargin;
+    double cardRight = cardLeft + cardWidth;
+    double cardBottom = mrzRect.bottom + horizontalMargin;
+    double cardTop = cardBottom - cardHeight;
+
+    if (cardLeft < 0) {
+      final delta = -cardLeft;
+      cardLeft += delta;
+      cardRight += delta;
+    }
+    if (cardRight > imageSize.width) {
+      final delta = cardRight - imageSize.width;
+      cardLeft -= delta;
+      cardRight -= delta;
+    }
+    if (cardTop < 0) {
+      final delta = -cardTop;
+      cardTop += delta;
+      cardBottom += delta;
+    }
+    if (cardBottom > imageSize.height) {
+      final delta = cardBottom - imageSize.height;
+      cardTop -= delta;
+      cardBottom -= delta;
+    }
+
+    cardLeft = cardLeft.clamp(0.0, imageSize.width - cardWidth);
+    cardTop = cardTop.clamp(0.0, imageSize.height - cardHeight);
+
+    return Rect.fromLTWH(cardLeft, cardTop, cardWidth, cardHeight);
+  }
 }
 
 class _RecognizedLine {
@@ -155,9 +220,11 @@ class MrzDetection {
     required this.lines,
     required this.boundingBox,
     required this.imageSize,
+    required this.cardBoundingBox,
   });
 
   final List<String> lines;
   final Rect boundingBox;
   final Size imageSize;
+  final Rect cardBoundingBox;
 }

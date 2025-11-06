@@ -6,12 +6,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart'
     as mlkit_commons;
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../models/document_type.dart';
 import '../models/mrz_scan_result.dart';
 import '../services/mrz_scanner.dart';
-import '../widgets/mrz_camera_guides.dart';
+import '../widgets/rotating_mrz_overlay_v2.dart';
 import 'mrz_review_screen.dart';
 
 class MrzCaptureScreen extends StatefulWidget {
@@ -37,7 +36,8 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
   late final MrzScannerService _scanner;
 
   CameraDescription? _selectedCamera;
-  ui.Rect? _detectedBoundingBox;
+  ui.Rect? _detectedCardRect;
+  List<String> _lastDetectedLines = const [];
   bool _isStreaming = false;
   bool _isProcessingFrame = false;
   bool _autoCapturePending = false;
@@ -162,36 +162,30 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
       }
 
       if (detection != null) {
-        final left = (detection.boundingBox.left / detection.imageSize.width)
-            .clamp(0.0, 1.0)
-            .toDouble();
-        final top = (detection.boundingBox.top / detection.imageSize.height)
-            .clamp(0.0, 1.0)
-            .toDouble();
-        final right = (detection.boundingBox.right / detection.imageSize.width)
-            .clamp(0.0, 1.0)
-            .toDouble();
-        final bottom =
-            (detection.boundingBox.bottom / detection.imageSize.height)
-                .clamp(0.0, 1.0)
-                .toDouble();
-
-        final normalized = ui.Rect.fromLTRB(left, top, right, bottom);
+        final normalized = _normalizedRect(
+          detection.cardBoundingBox,
+          detection.imageSize,
+        );
 
         setState(() {
-          _detectedBoundingBox = normalized;
+          _detectedCardRect = normalized == ui.Rect.zero ? null : normalized;
+          _lastDetectedLines = detection.lines;
         });
         _stableDetections = (_stableDetections + 1).clamp(0, 4);
 
-        if (_stableDetections >= 2 && !_autoCapturePending) {
+        final shouldCapture =
+            _shouldTriggerAutoCapture(detection.lines) && _stableDetections >= 2;
+
+        if (shouldCapture && !_autoCapturePending) {
           _autoCapturePending = true;
           _captureAndProcess(autoTriggered: true);
         }
       } else {
         _stableDetections = 0;
-        if (_detectedBoundingBox != null) {
+        if (_detectedCardRect != null || _lastDetectedLines.isNotEmpty) {
           setState(() {
-            _detectedBoundingBox = null;
+            _detectedCardRect = null;
+            _lastDetectedLines = const [];
           });
         }
       }
@@ -245,6 +239,41 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
     );
   }
 
+  ui.Rect _normalizedRect(ui.Rect rect, ui.Size imageSize) {
+    if (rect.isEmpty || imageSize.width == 0 || imageSize.height == 0) {
+      return ui.Rect.zero;
+    }
+
+    final left = (rect.left / imageSize.width).clamp(0.0, 1.0).toDouble();
+    final top = (rect.top / imageSize.height).clamp(0.0, 1.0).toDouble();
+    final right = (rect.right / imageSize.width).clamp(0.0, 1.0).toDouble();
+    final bottom = (rect.bottom / imageSize.height).clamp(0.0, 1.0).toDouble();
+
+    if (right <= left || bottom <= top) {
+      return ui.Rect.zero;
+    }
+
+    return ui.Rect.fromLTRB(left, top, right, bottom);
+  }
+
+  bool _shouldTriggerAutoCapture(List<String> lines) {
+    if (lines.isEmpty) {
+      return false;
+    }
+
+    final normalizedLines =
+        lines.map((line) => line.replaceAll(' ', '').toUpperCase()).toList();
+    final combined = normalizedLines.join();
+
+    final hasIdPrefix =
+        combined.contains('<ID') || combined.contains('<IR') || combined.startsWith('IDIRQ');
+    final hasIdirq = combined.contains('IDIRQ');
+    final hasSeparators = combined.contains('<<<');
+    final hasEnoughLines = normalizedLines.length >= 3;
+
+    return hasIdirq || hasSeparators || hasEnoughLines || hasIdPrefix;
+  }
+
   Future<void> _captureAndProcess({bool autoTriggered = false}) async {
     final controller = _controller;
     if (controller == null) {
@@ -286,7 +315,8 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
 
       if (mounted) {
         _stableDetections = 0;
-        _detectedBoundingBox = null;
+        _detectedCardRect = null;
+        _lastDetectedLines = const [];
       }
     } on CameraException catch (error) {
       setState(() {
@@ -355,8 +385,12 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
                                   fit: StackFit.expand,
                                   children: [
                                     CameraPreview(controller),
-                                    MrzCameraGuides(
-                                      detectedMrz: _detectedBoundingBox,
+                                    RotatingMrzOverlayV2(
+                                      detectedRect: _detectedCardRect,
+                                      rotationDegrees: -90,
+                                      alignment: Alignment.centerLeft,
+                                      heightRelative: 0.9,
+                                      guideLinesVertical: true,
                                     ),
                                   ],
                                 ),
