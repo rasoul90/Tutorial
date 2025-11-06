@@ -14,6 +14,20 @@ class MrzScannerService {
 
   final TextRecognizer _recognizer;
 
+  Future<MrzDetection?> detectMrz(InputImage inputImage, Size imageSize) async {
+    final recognized = await _recognizer.processImage(inputImage);
+    final extraction = _extractMrzLines(recognized);
+    if (extraction == null) {
+      return null;
+    }
+
+    return MrzDetection(
+      lines: extraction.lines,
+      boundingBox: extraction.boundingBox,
+      imageSize: imageSize,
+    );
+  }
+
   Future<MrzScanResult> scanImage(File imageFile) async {
     final inputImage = InputImage.fromFile(imageFile);
     final recognized = await _recognizer.processImage(inputImage);
@@ -131,4 +145,16 @@ class _MrzExtraction {
 
   final List<String> lines;
   final Rect boundingBox;
+}
+
+class MrzDetection {
+  MrzDetection({
+    required this.lines,
+    required this.boundingBox,
+    required this.imageSize,
+  });
+
+  final List<String> lines;
+  final Rect boundingBox;
+  final Size imageSize;
 }

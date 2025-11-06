@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../models/document_type.dart';
 import '../models/mrz_scan_result.dart';
@@ -32,6 +34,12 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
   late final MrzScannerService _scanner;
 
   CameraDescription? _selectedCamera;
+  ui.Rect? _detectedBoundingBox;
+  bool _isStreaming = false;
+  bool _isProcessingFrame = false;
+  bool _autoCapturePending = false;
+  int _stableDetections = 0;
+  DateTime? _lastFrameProcessed;
 
   @override
   void initState() {
@@ -77,21 +85,172 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
       camera,
       ResolutionPreset.high,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      imageFormatGroup: ImageFormatGroup.yuv420,
     );
+
+    final initializeFuture = controller.initialize().then((_) {
+      return _startImageStream();
+    });
 
     setState(() {
       _controller = controller;
-      _initializeControllerFuture = controller.initialize();
+      _initializeControllerFuture = initializeFuture;
     });
   }
 
-  Future<void> _captureAndProcess() async {
+  Future<void> _startImageStream() async {
+    final controller = _controller;
+    if (controller == null || _isStreaming) {
+      return;
+    }
+
+    try {
+      await controller.startImageStream(_processCameraImage);
+      _isStreaming = true;
+    } on CameraException {
+      _isStreaming = false;
+    }
+  }
+
+  Future<void> _stopImageStream() async {
+    final controller = _controller;
+    if (controller == null || !_isStreaming) {
+      return;
+    }
+
+    try {
+      await controller.stopImageStream();
+    } on CameraException {
+      // ignore
+    } finally {
+      _isStreaming = false;
+    }
+  }
+
+  Future<void> _processCameraImage(CameraImage image) async {
+    if (_isProcessingFrame || _isProcessing) {
+      return;
+    }
+
+    final now = DateTime.now();
+    if (_lastFrameProcessed != null &&
+        now.difference(_lastFrameProcessed!).inMilliseconds < 400) {
+      return;
+    }
+    _lastFrameProcessed = now;
+
+    _isProcessingFrame = true;
+    try {
+      final controller = _controller;
+      if (controller == null) {
+        return;
+      }
+
+      final rotation = controller.description.sensorOrientation;
+      final inputImage = _buildInputImage(image, rotation);
+      final Size rotatedSize = rotation == 90 || rotation == 270
+          ? Size(image.height.toDouble(), image.width.toDouble())
+          : Size(image.width.toDouble(), image.height.toDouble());
+
+      final detection =
+          await _scanner.detectMrz(inputImage, rotatedSize);
+      if (!mounted) {
+        return;
+      }
+
+      if (detection != null) {
+        final left = (detection.boundingBox.left / detection.imageSize.width)
+            .clamp(0.0, 1.0)
+            .toDouble();
+        final top = (detection.boundingBox.top / detection.imageSize.height)
+            .clamp(0.0, 1.0)
+            .toDouble();
+        final right = (detection.boundingBox.right / detection.imageSize.width)
+            .clamp(0.0, 1.0)
+            .toDouble();
+        final bottom =
+            (detection.boundingBox.bottom / detection.imageSize.height)
+                .clamp(0.0, 1.0)
+                .toDouble();
+
+        final normalized = ui.Rect.fromLTRB(left, top, right, bottom);
+
+        setState(() {
+          _detectedBoundingBox = normalized;
+        });
+        _stableDetections = (_stableDetections + 1).clamp(0, 4);
+
+        if (_stableDetections >= 2 && !_autoCapturePending) {
+          _autoCapturePending = true;
+          _captureAndProcess(autoTriggered: true);
+        }
+      } else {
+        _stableDetections = 0;
+        if (_detectedBoundingBox != null) {
+          setState(() {
+            _detectedBoundingBox = null;
+          });
+        }
+      }
+    } catch (_) {
+      // ignore frame errors
+    } finally {
+      _isProcessingFrame = false;
+    }
+  }
+
+  InputImage _buildInputImage(CameraImage image, int rotation) {
+    final ui.WriteBuffer allBytes = ui.WriteBuffer();
+    for (final plane in image.planes) {
+      allBytes.putUint8List(plane.bytes);
+    }
+    final bytes = allBytes.done().buffer.asUint8List();
+
+    final Size imageSize = Size(
+      image.width.toDouble(),
+      image.height.toDouble(),
+    );
+
+    final imageRotation = InputImageRotationValue.fromRawValue(rotation) ??
+        InputImageRotation.rotation0deg;
+
+    final inputImageFormat =
+        InputImageFormatValue.fromRawValue(image.format.raw) ??
+            InputImageFormat.nv21;
+
+    final planeData = image.planes
+        .map(
+          (plane) => InputImagePlaneMetadata(
+            bytesPerRow: plane.bytesPerRow,
+            height: plane.height,
+            width: plane.width,
+          ),
+        )
+        .toList();
+
+    return InputImage.fromBytes(
+      bytes: bytes,
+      inputImageData: InputImageData(
+        size: imageSize,
+        imageRotation: imageRotation,
+        inputImageFormat: inputImageFormat,
+        planeData: planeData,
+      ),
+    );
+  }
+
+  Future<void> _captureAndProcess({bool autoTriggered = false}) async {
     final controller = _controller;
     if (controller == null) {
+      if (autoTriggered) {
+        _autoCapturePending = false;
+      }
       return;
     }
     if (_isProcessing) {
+      if (autoTriggered) {
+        _autoCapturePending = false;
+      }
       return;
     }
 
@@ -101,6 +260,8 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
         _isProcessing = true;
         _errorMessage = null;
       });
+
+      await _stopImageStream();
 
       final capture = await controller.takePicture();
       final result = await _scanner.scanImage(File(capture.path));
@@ -116,6 +277,11 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
           ),
         ),
       );
+
+      if (mounted) {
+        _stableDetections = 0;
+        _detectedBoundingBox = null;
+      }
     } on CameraException catch (error) {
       setState(() {
         _errorMessage = 'تعذر فتح الكاميرا: ${error.description ?? error.code}';
@@ -133,6 +299,12 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
         setState(() {
           _isProcessing = false;
         });
+        if (autoTriggered) {
+          _autoCapturePending = false;
+        }
+        if (!_isStreaming) {
+          await _startImageStream();
+        }
       }
     }
   }
@@ -177,7 +349,9 @@ class _MrzCaptureScreenState extends State<MrzCaptureScreen>
                                   fit: StackFit.expand,
                                   children: [
                                     CameraPreview(controller),
-                                    const MrzCameraGuides(),
+                                    MrzCameraGuides(
+                                      detectedMrz: _detectedBoundingBox,
+                                    ),
                                   ],
                                 ),
                               ),
