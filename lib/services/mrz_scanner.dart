@@ -1,0 +1,230 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:math' as math;
+import 'dart:typed_data';
+import 'dart:ui' show Image, Rect, Size, decodeImageFromList;
+
+import 'package:google_mlkit_commons/google_mlkit_commons.dart'
+    as mlkit_commons;
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+
+import '../models/mrz_data.dart';
+import '../models/mrz_scan_result.dart';
+
+class MrzScannerService {
+  MrzScannerService()
+      : _recognizer = TextRecognizer(script: TextRecognitionScript.latin);
+
+  final TextRecognizer _recognizer;
+
+  Future<MrzDetection?> detectMrz(
+      mlkit_commons.InputImage inputImage, Size imageSize) async {
+    final recognized = await _recognizer.processImage(inputImage);
+    final extraction = _extractMrzLines(recognized);
+    if (extraction == null) {
+      return null;
+    }
+
+    final cardBoundingBox =
+        _estimateCardRect(extraction.boundingBox, imageSize);
+
+    return MrzDetection(
+      lines: extraction.lines,
+      boundingBox: extraction.boundingBox,
+      imageSize: imageSize,
+      cardBoundingBox: cardBoundingBox,
+    );
+  }
+
+  Future<MrzScanResult> scanImage(File imageFile) async {
+    final inputImage = mlkit_commons.InputImage.fromFile(imageFile);
+    final recognized = await _recognizer.processImage(inputImage);
+
+    final mrzExtraction = _extractMrzLines(recognized);
+    if (mrzExtraction == null) {
+      throw const FormatException('تعذر العثور على MRZ بشكل واضح. حاول مجدداً.');
+    }
+
+    final data = MrzData.fromLines(mrzExtraction.lines);
+
+    final imageBytes = await imageFile.readAsBytes();
+    final Image uiImage = await _decodeImage(imageBytes);
+    final boundingBox = mrzExtraction.boundingBox;
+    final cardBoundingBox = _estimateCardRect(
+      mrzExtraction.boundingBox,
+      Size(uiImage.width.toDouble(), uiImage.height.toDouble()),
+    );
+
+    return MrzScanResult(
+      data: data,
+      imageSize: Size(uiImage.width.toDouble(), uiImage.height.toDouble()),
+      boundingBox: boundingBox,
+      cardBoundingBox: cardBoundingBox,
+    );
+  }
+
+  Future<void> dispose() => _recognizer.close();
+
+  Future<Image> _decodeImage(Uint8List bytes) {
+    final completer = Completer<Image>();
+    decodeImageFromList(bytes, (image) => completer.complete(image));
+    return completer.future;
+  }
+
+  _MrzExtraction? _extractMrzLines(RecognizedText recognized) {
+    final candidateLines = <_RecognizedLine>[];
+
+    for (final block in recognized.blocks) {
+      for (final line in block.lines) {
+        final cleaned = line.text
+            .replaceAll(' ', '')
+            .replaceAll('\u200f', '')
+            .replaceAll('\u202d', '')
+            .replaceAll('\u202c', '')
+            .toUpperCase();
+        if (cleaned.isEmpty) {
+          continue;
+        }
+        if (!RegExp(r'^[A-Z0-9<]+$').hasMatch(cleaned)) {
+          continue;
+        }
+        candidateLines.add(
+          _RecognizedLine(
+            text: cleaned,
+            boundingBox: line.boundingBox,
+          ),
+        );
+      }
+    }
+
+    if (candidateLines.length < 2) {
+      return null;
+    }
+
+    _RecognizedLine padLine(_RecognizedLine line, int targetLength) {
+      final padded = line.text.padRight(targetLength, '<').substring(0, targetLength);
+      return _RecognizedLine(text: padded, boundingBox: line.boundingBox);
+    }
+
+    if (candidateLines.length >= 3) {
+      for (var i = 0; i <= candidateLines.length - 3; i++) {
+        final slice = candidateLines.sublist(i, i + 3);
+        if (slice.every((line) => line.text.length >= 30 && line.text.length <= 36)) {
+          final normalized = slice.map((line) => padLine(line, 30)).toList();
+          return _MrzExtraction(
+            lines: normalized.map((line) => line.text).toList(),
+            boundingBox: _mergeBoundingBoxes(normalized.map((e) => e.boundingBox)),
+          );
+        }
+      }
+    }
+
+    for (var i = 0; i <= candidateLines.length - 2; i++) {
+      final slice = candidateLines.sublist(i, i + 2);
+      if (slice.every((line) => line.text.length >= 36)) {
+        final normalized = slice.map((line) => padLine(line, 44)).toList();
+        return _MrzExtraction(
+          lines: normalized.map((line) => line.text).toList(),
+          boundingBox: _mergeBoundingBoxes(normalized.map((e) => e.boundingBox)),
+        );
+      }
+    }
+
+    return null;
+  }
+
+  Rect _mergeBoundingBoxes(Iterable<Rect> boxes) {
+    Rect? merged;
+    for (final box in boxes) {
+      if (merged == null) {
+        merged = box;
+      } else {
+        merged = merged.expandToInclude(box);
+      }
+    }
+    return merged ?? Rect.zero;
+  }
+
+  Rect _estimateCardRect(Rect mrzRect, Size imageSize) {
+    const horizontalMarginRatio = 0.08;
+    const mrzHeightRatio = 0.28;
+    const id1Aspect = 85.6 / 54.0;
+
+    if (mrzRect.isEmpty) {
+      return mrzRect;
+    }
+
+    final cardWidthFromMrzWidth =
+        mrzRect.width / (1 - (horizontalMarginRatio * 2));
+    final cardHeightFromMrzHeight = mrzRect.height / mrzHeightRatio;
+    final cardWidthFromHeight = cardHeightFromMrzHeight * id1Aspect;
+
+    double cardWidth = math.max(cardWidthFromMrzWidth, cardWidthFromHeight);
+    cardWidth = cardWidth.clamp(0.0, imageSize.width);
+    double cardHeight = cardWidth / id1Aspect;
+    if (cardHeight > imageSize.height) {
+      cardHeight = imageSize.height;
+      cardWidth = cardHeight * id1Aspect;
+    }
+
+    final horizontalMargin = cardWidth * horizontalMarginRatio;
+    double cardLeft = mrzRect.left - horizontalMargin;
+    double cardRight = cardLeft + cardWidth;
+    double cardBottom = mrzRect.bottom + horizontalMargin;
+    double cardTop = cardBottom - cardHeight;
+
+    if (cardLeft < 0) {
+      final delta = -cardLeft;
+      cardLeft += delta;
+      cardRight += delta;
+    }
+    if (cardRight > imageSize.width) {
+      final delta = cardRight - imageSize.width;
+      cardLeft -= delta;
+      cardRight -= delta;
+    }
+    if (cardTop < 0) {
+      final delta = -cardTop;
+      cardTop += delta;
+      cardBottom += delta;
+    }
+    if (cardBottom > imageSize.height) {
+      final delta = cardBottom - imageSize.height;
+      cardTop -= delta;
+      cardBottom -= delta;
+    }
+
+    cardLeft = cardLeft.clamp(0.0, imageSize.width - cardWidth);
+    cardTop = cardTop.clamp(0.0, imageSize.height - cardHeight);
+
+    return Rect.fromLTWH(cardLeft, cardTop, cardWidth, cardHeight);
+  }
+}
+
+class _RecognizedLine {
+  _RecognizedLine({required this.text, required this.boundingBox});
+
+  final String text;
+  final Rect boundingBox;
+}
+
+class _MrzExtraction {
+  _MrzExtraction({required this.lines, required this.boundingBox});
+
+  final List<String> lines;
+  final Rect boundingBox;
+}
+
+class MrzDetection {
+  MrzDetection({
+    required this.lines,
+    required this.boundingBox,
+    required this.imageSize,
+    required this.cardBoundingBox,
+  });
+
+  final List<String> lines;
+  final Rect boundingBox;
+  final Size imageSize;
+  final Rect cardBoundingBox;
+}
