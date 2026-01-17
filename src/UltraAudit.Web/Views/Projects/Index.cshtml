@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "Projects List";
+}
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body d-flex justify-content-between align-items-center">
+        <div class="input-group w-50">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input class="form-control" placeholder="Search projects" />
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm">Column Chooser</button>
+            <button class="btn btn-outline-secondary btn-sm">Saved Views</button>
+            <a class="btn btn-primary btn-sm" asp-action="Create">New Project</a>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header">Active Projects</div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Lead</th>
+                <th>Updated</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>PAY-2024</td>
+                <td>Payroll Oversight</td>
+                <td><span class="badge bg-success">Active</span></td>
+                <td>A. Salem</td>
+                <td>2024-05-01</td>
+            </tr>
+            <tr>
+                <td>BUD-2024</td>
+                <td>Budget Tabulation</td>
+                <td><span class="badge bg-warning text-dark">Planning</span></td>
+                <td>M. Nasser</td>
+                <td>2024-04-22</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

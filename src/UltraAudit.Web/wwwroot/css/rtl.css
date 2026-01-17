@@ -1,0 +1,13 @@
+body {
+    direction: rtl;
+}
+
+.sidebar {
+    border-right: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    float: right;
+    padding-left: 0.5rem;
+}

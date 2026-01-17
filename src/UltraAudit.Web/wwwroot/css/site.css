@@ -1,0 +1,42 @@
+body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+#layout-wrapper {
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 270px;
+    min-height: 100vh;
+}
+
+.sidebar .nav-link {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.35rem;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.topbar .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.card-metric {
+    border-left: 4px solid #0d6efd;
+}
+
+.table thead th {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+}

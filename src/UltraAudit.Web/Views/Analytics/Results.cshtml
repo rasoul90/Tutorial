@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Results Explorer";
+}
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="row g-2">
+            <div class="col-md-4">
+                <input class="form-control" placeholder="Search results" />
+            </div>
+            <div class="col-md-4">
+                <select class="form-select">
+                    <option>Filter Group: Exceptions</option>
+                    <option>High Risk</option>
+                </select>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-outline-secondary">Export Excel</button>
+                <button class="btn btn-outline-secondary">Export PDF</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header">Exceptions Preview</div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Record</th>
+                <th>Issue</th>
+                <th>Score</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>EMP-2345</td>
+                <td>Allowance exceeds policy</td>
+                <td>0.92</td>
+                <td><span class="badge bg-danger">High</span></td>
+            </tr>
+            <tr>
+                <td>VEN-1021</td>
+                <td>Possible duplicate vendor</td>
+                <td>0.81</td>
+                <td><span class="badge bg-warning text-dark">Medium</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
