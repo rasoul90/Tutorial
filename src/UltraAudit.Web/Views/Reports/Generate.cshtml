@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Generate Reports";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header">Generate</div>
+    <div class="card-body">
+        <form class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Template</label>
+                <select class="form-select">
+                    <option>Arabic Executive Summary</option>
+                    <option>English Findings Report</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Project</label>
+                <select class="form-select">
+                    <option>Payroll Oversight</option>
+                    <option>Budget Tabulation</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <button class="btn btn-primary">Generate</button>
+            </div>
+        </form>
+    </div>
+</div>

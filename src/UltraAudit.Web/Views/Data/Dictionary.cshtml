@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "Data Dictionary";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header">Fields</div>
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Rule</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>EmployeeId</td>
+                <td>Number</td>
+                <td>Yes</td>
+                <td>Unique</td>
+            </tr>
+            <tr>
+                <td>AllowanceType</td>
+                <td>Text</td>
+                <td>No</td>
+                <td>Lookup</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

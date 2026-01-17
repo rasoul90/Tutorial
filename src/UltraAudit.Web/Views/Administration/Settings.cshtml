@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "System Settings";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header">Settings</div>
+    <div class="card-body">
+        <form class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Default Locale</label>
+                <select class="form-select">
+                    <option>English</option>
+                    <option>Arabic</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Data Retention (months)</label>
+                <input class="form-control" value="24" />
+            </div>
+            <div class="col-12">
+                <button class="btn btn-primary">Save Settings</button>
+            </div>
+        </form>
+    </div>
+</div>
