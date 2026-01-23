@@ -1,0 +1,55 @@
+<section class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 text-center">
+            <div class="card-body">
+                <div class="text-muted">@SharedLocalizer["TotalMinistriesLabel"]</div>
+                <div class="display-6 fw-bold">@ViewBag.TotalMinistries</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 text-center">
+            <div class="card-body">
+                <div class="text-muted">@SharedLocalizer["TotalEmployeesLabel"]</div>
+                <div class="display-6 fw-bold">@ViewBag.TotalEmployees</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 text-center">
+            <div class="card-body">
+                <div class="text-muted">@SharedLocalizer["TotalUnverifiedLabel"]</div>
+                <div class="display-6 fw-bold">@ViewBag.TotalUnverified</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 text-center">
+            <div class="card-body">
+                <div class="text-muted">@SharedLocalizer["GhostEmployeesLabel"]</div>
+                <div class="display-6 fw-bold">@ViewBag.GhostCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 text-center">
+            <div class="card-body">
+                <div class="text-muted">@SharedLocalizer["DuplicateEmployeesLabel"]</div>
+                <div class="display-6 fw-bold">@ViewBag.DuplicateCount</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <h2 class="h5 mb-3">@SharedLocalizer["ReportsTitle"]</h2>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-outline-primary" asp-controller="Reports" asp-action="Unverified">@SharedLocalizer["UnverifiedReportTitle"]</a>
+                <a class="btn btn-outline-primary" asp-controller="Reports" asp-action="Ghost">@SharedLocalizer["GhostReportTitle"]</a>
+                <a class="btn btn-outline-primary" asp-controller="Reports" asp-action="Duplicate">@SharedLocalizer["DuplicateReportTitle"]</a>
+            </div>
+        </div>
+    </div>
+</section>

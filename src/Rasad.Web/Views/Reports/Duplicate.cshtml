@@ -1,0 +1,35 @@
+@model IReadOnlyList<Rasad.Web.Models.Reports.DuplicateEmployeeGroupViewModel>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4">@SharedLocalizer["DuplicateReportTitle"]</h1>
+    <a class="btn btn-success" asp-action="ExportDuplicate">@SharedLocalizer["ExportExcelLabel"]</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">@SharedLocalizer["NoRecordsLabel"]</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>@SharedLocalizer["NationalIdLabel"]</th>
+                    <th>@SharedLocalizer["EmployeeFullNameLabel"]</th>
+                    <th>@SharedLocalizer["MinistriesLabel"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.NationalIdDisplay</td>
+                        <td>@item.NormalizedName</td>
+                        <td>@string.Join(" | ", item.Ministries)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

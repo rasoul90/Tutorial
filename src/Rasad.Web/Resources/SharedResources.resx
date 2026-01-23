@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppName" xml:space="preserve">
+    <value>رصد</value>
+  </data>
+  <data name="HomeTitle" xml:space="preserve">
+    <value>منصة رصد لتدقيق موظفي الدولة</value>
+  </data>
+  <data name="HomeSubtitle" xml:space="preserve">
+    <value>واجهة عربية مهيأة للانطلاق حسب خطة التنفيذ المعتمدة</value>
+  </data>
+  <data name="HomeWelcome" xml:space="preserve">
+    <value>مرحبًا بك في منصة رصد</value>
+  </data>
+  <data name="FooterText" xml:space="preserve">
+    <value>جميع الحقوق محفوظة لمنصة رصد</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>حدث خطأ غير متوقع</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>نعتذر، الرجاء المحاولة لاحقًا</value>
+  </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="LoginSubtitle" xml:space="preserve">
+    <value>يرجى إدخال بيانات الدخول للمتابعة</value>
+  </data>
+  <data name="LoginButton" xml:space="preserve">
+    <value>دخول</value>
+  </data>
+  <data name="UserNameLabel" xml:space="preserve">
+    <value>اسم المستخدم</value>
+  </data>
+  <data name="PasswordLabel" xml:space="preserve">
+    <value>كلمة المرور</value>
+  </data>
+  <data name="InvalidLogin" xml:space="preserve">
+    <value>بيانات الدخول غير صحيحة</value>
+  </data>
+  <data name="MinistriesLabel" xml:space="preserve">
+    <value>الوزارات</value>
+  </data>
+  <data name="DirectoratesLabel" xml:space="preserve">
+    <value>الدوائر</value>
+  </data>
+  <data name="DepartmentsLabel" xml:space="preserve">
+    <value>الأقسام</value>
+  </data>
+  <data name="SectionsLabel" xml:space="preserve">
+    <value>الشعب</value>
+  </data>
+  <data name="UnitsLabel" xml:space="preserve">
+    <value>الوحدات</value>
+  </data>
+  <data name="DataWindowsLabel" xml:space="preserve">
+    <value>فترات الإدخال</value>
+  </data>
+  <data name="LogoutLabel" xml:space="preserve">
+    <value>تسجيل الخروج</value>
+  </data>
+  <data name="LoginLabel" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="ActionsLabel" xml:space="preserve">
+    <value>الإجراءات</value>
+  </data>
+  <data name="CreateNewLabel" xml:space="preserve">
+    <value>إضافة جديدة</value>
+  </data>
+  <data name="EditLabel" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="DeleteLabel" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="SearchLabel" xml:space="preserve">
+    <value>بحث</value>
+  </data>
+  <data name="FilterLabel" xml:space="preserve">
+    <value>تصفية</value>
+  </data>
+  <data name="SaveLabel" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="BackLabel" xml:space="preserve">
+    <value>رجوع</value>
+  </data>
+  <data name="MinistryNameLabel" xml:space="preserve">
+    <value>اسم الوزارة</value>
+  </data>
+  <data name="MinistryCodeLabel" xml:space="preserve">
+    <value>رمز الوزارة</value>
+  </data>
+  <data name="IsActiveLabel" xml:space="preserve">
+    <value>نشط</value>
+  </data>
+  <data name="DirectorateNameLabel" xml:space="preserve">
+    <value>اسم الدائرة</value>
+  </data>
+  <data name="DepartmentNameLabel" xml:space="preserve">
+    <value>اسم القسم</value>
+  </data>
+  <data name="SectionNameLabel" xml:space="preserve">
+    <value>اسم الشعبة</value>
+  </data>
+  <data name="UnitNameLabel" xml:space="preserve">
+    <value>اسم الوحدة</value>
+  </data>
+  <data name="MinistryLabel" xml:space="preserve">
+    <value>الوزارة</value>
+  </data>
+  <data name="DirectorateLabel" xml:space="preserve">
+    <value>الدائرة</value>
+  </data>
+  <data name="DepartmentLabel" xml:space="preserve">
+    <value>القسم</value>
+  </data>
+  <data name="SectionLabel" xml:space="preserve">
+    <value>الشعبة</value>
+  </data>
+  <data name="StartAtLabel" xml:space="preserve">
+    <value>بداية الفترة</value>
+  </data>
+  <data name="EndAtLabel" xml:space="preserve">
+    <value>نهاية الفترة</value>
+  </data>
+  <data name="AfterCloseMessageLabel" xml:space="preserve">
+    <value>رسالة ما بعد الإغلاق</value>
+  </data>
+  <data name="ConfirmDeleteTitle" xml:space="preserve">
+    <value>تأكيد الحذف</value>
+  </data>
+  <data name="ConfirmDeleteMessage" xml:space="preserve">
+    <value>هل أنت متأكد من الحذف؟</value>
+  </data>
+  <data name="DeleteConfirmButton" xml:space="preserve">
+    <value>تأكيد الحذف</value>
+  </data>
+  <data name="MinistryDeleteBlocked" xml:space="preserve">
+    <value>لا يمكن حذف الوزارة لوجود بيانات مرتبطة بها</value>
+  </data>
+  <data name="DirectorateDeleteBlocked" xml:space="preserve">
+    <value>لا يمكن حذف الدائرة لوجود أقسام مرتبطة بها</value>
+  </data>
+  <data name="DepartmentDeleteBlocked" xml:space="preserve">
+    <value>لا يمكن حذف القسم لوجود شعب مرتبطة به</value>
+  </data>
+  <data name="SectionDeleteBlocked" xml:space="preserve">
+    <value>لا يمكن حذف الشعبة لوجود وحدات مرتبطة بها</value>
+  </data>
+  <data name="MinistriesTitle" xml:space="preserve">
+    <value>إدارة الوزارات</value>
+  </data>
+  <data name="DirectoratesTitle" xml:space="preserve">
+    <value>إدارة الدوائر</value>
+  </data>
+  <data name="DepartmentsTitle" xml:space="preserve">
+    <value>إدارة الأقسام</value>
+  </data>
+  <data name="SectionsTitle" xml:space="preserve">
+    <value>إدارة الشعب</value>
+  </data>
+  <data name="UnitsTitle" xml:space="preserve">
+    <value>إدارة الوحدات</value>
+  </data>
+  <data name="DataWindowsTitle" xml:space="preserve">
+    <value>إدارة فترات الإدخال</value>
+  </data>
+  <data name="NoRecordsLabel" xml:space="preserve">
+    <value>لا توجد سجلات مطابقة</value>
+  </data>
+  <data name="EmployeesTitle" xml:space="preserve">
+    <value>إدارة الموظفين</value>
+  </data>
+  <data name="EmployeeFullNameLabel" xml:space="preserve">
+    <value>الاسم الكامل</value>
+  </data>
+  <data name="JobNumberLabel" xml:space="preserve">
+    <value>الرقم الوظيفي</value>
+  </data>
+  <data name="NationalIdLabel" xml:space="preserve">
+    <value>الرقم الوطني</value>
+  </data>
+  <data name="UnitLabel" xml:space="preserve">
+    <value>الوحدة</value>
+  </data>
+  <data name="WindowClosedMessage" xml:space="preserve">
+    <value>انتهت فترة إدخال/تعديل البيانات ولا يسمح بالإضافة أو التعديل أو الحذف حالياً</value>
+  </data>
+  <data name="DuplicateNationalIdMessage" xml:space="preserve">
+    <value>الرقم الوطني مكرر داخل نفس الوزارة</value>
+  </data>
+  <data name="DuplicateJobNumberMessage" xml:space="preserve">
+    <value>الرقم الوظيفي مكرر داخل نفس الوزارة</value>
+  </data>
+  <data name="ScopeViolationMessage" xml:space="preserve">
+    <value>نطاقك الإداري لا يسمح بهذا الاختيار</value>
+  </data>
+  <data name="HierarchyViolationMessage" xml:space="preserve">
+    <value>تسلسل الهيكل الإداري غير متوافق مع البيانات المختارة</value>
+  </data>
+  <data name="MinistryUsersTitle" xml:space="preserve">
+    <value>مستخدمو الوزارة</value>
+  </data>
+  <data name="CreateUserTitle" xml:space="preserve">
+    <value>إضافة مستخدم وزارة</value>
+  </data>
+  <data name="EmailLabel" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+  <data name="CanImportExcelLabel" xml:space="preserve">
+    <value>صلاحية استيراد Excel</value>
+  </data>
+  <data name="CanExportExcelLabel" xml:space="preserve">
+    <value>صلاحية تصدير Excel</value>
+  </data>
+  <data name="CanViewNationalIdFullLabel" xml:space="preserve">
+    <value>عرض الرقم الوطني كاملًا</value>
+  </data>
+  <data name="ApiValidationFailed" xml:space="preserve">
+    <value>الطلب غير مكتمل</value>
+  </data>
+  <data name="ApiUnauthorized" xml:space="preserve">
+    <value>غير مصرح بالوصول</value>
+  </data>
+  <data name="ApiInvalidToken" xml:space="preserve">
+    <value>رمز الدخول غير صالح</value>
+  </data>
+  <data name="ApiInvalidTimestamp" xml:space="preserve">
+    <value>الطابع الزمني غير صالح</value>
+  </data>
+  <data name="ApiExpiredTimestamp" xml:space="preserve">
+    <value>الطابع الزمني منتهي الصلاحية</value>
+  </data>
+  <data name="ApiReplayDetected" xml:space="preserve">
+    <value>تم رفض الطلب بسبب تكرار البيانات</value>
+  </data>
+  <data name="ApiInvalidSignature" xml:space="preserve">
+    <value>توقيع الطلب غير صحيح</value>
+  </data>
+  <data name="ApiNoMatch" xml:space="preserve">
+    <value>لا يوجد موظف مطابق</value>
+  </data>
+  <data name="ApiAlreadyVerified" xml:space="preserve">
+    <value>تم التحقق مسبقًا</value>
+  </data>
+  <data name="ApiVerifiedSuccess" xml:space="preserve">
+    <value>تم التحقق بنجاح</value>
+  </data>
+  <data name="ApiClientMinistryMismatch" xml:space="preserve">
+    <value>محاولة تحقق خارج نطاق الوزارة</value>
+  </data>
+  <data name="DashboardLabel" xml:space="preserve">
+    <value>لوحة التحكم</value>
+  </data>
+  <data name="ReportsTitle" xml:space="preserve">
+    <value>التقارير</value>
+  </data>
+  <data name="TotalMinistriesLabel" xml:space="preserve">
+    <value>إجمالي الوزارات</value>
+  </data>
+  <data name="TotalEmployeesLabel" xml:space="preserve">
+    <value>إجمالي الموظفين</value>
+  </data>
+  <data name="TotalUnverifiedLabel" xml:space="preserve">
+    <value>إجمالي غير المتحققين</value>
+  </data>
+  <data name="GhostEmployeesLabel" xml:space="preserve">
+    <value>إجمالي الموظفين الوهميين</value>
+  </data>
+  <data name="DuplicateEmployeesLabel" xml:space="preserve">
+    <value>إجمالي الازدواج الوظيفي</value>
+  </data>
+  <data name="UnverifiedReportTitle" xml:space="preserve">
+    <value>تقرير غير المتحققين</value>
+  </data>
+  <data name="GhostReportTitle" xml:space="preserve">
+    <value>تقرير الموظفين الوهميين</value>
+  </data>
+  <data name="DuplicateReportTitle" xml:space="preserve">
+    <value>تقرير الازدواج الوظيفي</value>
+  </data>
+  <data name="ExportExcelLabel" xml:space="preserve">
+    <value>تصدير Excel</value>
+  </data>
+  <data name="NamesCountLabel" xml:space="preserve">
+    <value>عدد الأسماء</value>
+  </data>
+  <data name="NamesLabel" xml:space="preserve">
+    <value>الأسماء المرتبطة</value>
+  </data>
+</root>

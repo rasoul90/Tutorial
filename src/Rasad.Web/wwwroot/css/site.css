@@ -1,0 +1,18 @@
+:root {
+    color-scheme: light;
+}
+
+body {
+    direction: rtl;
+    text-align: right;
+    font-family: "Cairo", "Tahoma", "Arial", sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    color: #1b1f3b;
+}
+
+main {
+    min-height: 60vh;
+}

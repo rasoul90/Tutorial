@@ -1,0 +1,49 @@
+@model IReadOnlyList<Rasad.Domain.Entities.Directorate>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4">@SharedLocalizer["DirectoratesTitle"]</h1>
+    <a class="btn btn-primary" asp-action="Create">@SharedLocalizer["CreateNewLabel"]</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <select name="ministryId" class="form-select" asp-items="ViewBag.MinistryId">
+            <option value="">@SharedLocalizer["FilterLabel"]</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100">@SharedLocalizer["FilterLabel"]</button>
+    </div>
+</form>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">@SharedLocalizer["NoRecordsLabel"]</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>@SharedLocalizer["DirectorateNameLabel"]</th>
+                    <th>@SharedLocalizer["MinistryLabel"]</th>
+                    <th class="text-end">@SharedLocalizer["ActionsLabel"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.NameAr</td>
+                        <td>@item.Ministry?.NameAr</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@item.Id">@SharedLocalizer["EditLabel"]</a>
+                            <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@item.Id">@SharedLocalizer["DeleteLabel"]</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
