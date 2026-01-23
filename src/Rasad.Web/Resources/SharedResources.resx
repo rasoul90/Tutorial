@@ -264,4 +264,43 @@
   <data name="ApiClientMinistryMismatch" xml:space="preserve">
     <value>محاولة تحقق خارج نطاق الوزارة</value>
   </data>
+  <data name="DashboardLabel" xml:space="preserve">
+    <value>لوحة التحكم</value>
+  </data>
+  <data name="ReportsTitle" xml:space="preserve">
+    <value>التقارير</value>
+  </data>
+  <data name="TotalMinistriesLabel" xml:space="preserve">
+    <value>إجمالي الوزارات</value>
+  </data>
+  <data name="TotalEmployeesLabel" xml:space="preserve">
+    <value>إجمالي الموظفين</value>
+  </data>
+  <data name="TotalUnverifiedLabel" xml:space="preserve">
+    <value>إجمالي غير المتحققين</value>
+  </data>
+  <data name="GhostEmployeesLabel" xml:space="preserve">
+    <value>إجمالي الموظفين الوهميين</value>
+  </data>
+  <data name="DuplicateEmployeesLabel" xml:space="preserve">
+    <value>إجمالي الازدواج الوظيفي</value>
+  </data>
+  <data name="UnverifiedReportTitle" xml:space="preserve">
+    <value>تقرير غير المتحققين</value>
+  </data>
+  <data name="GhostReportTitle" xml:space="preserve">
+    <value>تقرير الموظفين الوهميين</value>
+  </data>
+  <data name="DuplicateReportTitle" xml:space="preserve">
+    <value>تقرير الازدواج الوظيفي</value>
+  </data>
+  <data name="ExportExcelLabel" xml:space="preserve">
+    <value>تصدير Excel</value>
+  </data>
+  <data name="NamesCountLabel" xml:space="preserve">
+    <value>عدد الأسماء</value>
+  </data>
+  <data name="NamesLabel" xml:space="preserve">
+    <value>الأسماء المرتبطة</value>
+  </data>
 </root>

@@ -1,0 +1,66 @@
+@model IReadOnlyList<Rasad.Web.Models.Reports.UnverifiedReportItemViewModel>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4">@SharedLocalizer["UnverifiedReportTitle"]</h1>
+    <a class="btn btn-success" asp-action="ExportUnverified">@SharedLocalizer["ExportExcelLabel"]</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <select name="MinistryId" class="form-select" asp-items="ViewBag.MinistryId">
+            <option value="">@SharedLocalizer["MinistryLabel"]</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="DirectorateId" class="form-select" asp-items="ViewBag.DirectorateId">
+            <option value="">@SharedLocalizer["DirectorateLabel"]</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="DepartmentId" class="form-select" asp-items="ViewBag.DepartmentId">
+            <option value="">@SharedLocalizer["DepartmentLabel"]</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-outline-primary w-100">@SharedLocalizer["FilterLabel"]</button>
+    </div>
+</form>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">@SharedLocalizer["NoRecordsLabel"]</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>@SharedLocalizer["EmployeeFullNameLabel"]</th>
+                    <th>@SharedLocalizer["JobNumberLabel"]</th>
+                    <th>@SharedLocalizer["NationalIdLabel"]</th>
+                    <th>@SharedLocalizer["MinistryLabel"]</th>
+                    <th>@SharedLocalizer["DirectorateLabel"]</th>
+                    <th>@SharedLocalizer["DepartmentLabel"]</th>
+                    <th>@SharedLocalizer["SectionLabel"]</th>
+                    <th>@SharedLocalizer["UnitLabel"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.FullName</td>
+                        <td>@item.JobNumber</td>
+                        <td>@item.NationalIdDisplay</td>
+                        <td>@item.MinistryName</td>
+                        <td>@item.DirectorateName</td>
+                        <td>@item.DepartmentName</td>
+                        <td>@item.SectionName</td>
+                        <td>@item.UnitName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -37,6 +37,12 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="MinistryDataWindows" asp-action="Index">@SharedLocalizer["DataWindowsLabel"]</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">@SharedLocalizer["DashboardLabel"]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Reports" asp-action="Unverified">@SharedLocalizer["ReportsTitle"]</a>
+                            </li>
                         }
                         @if (User.Identity?.IsAuthenticated == true)
                         {
