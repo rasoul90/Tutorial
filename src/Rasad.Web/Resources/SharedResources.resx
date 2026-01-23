@@ -231,4 +231,37 @@
   <data name="CanViewNationalIdFullLabel" xml:space="preserve">
     <value>عرض الرقم الوطني كاملًا</value>
   </data>
+  <data name="ApiValidationFailed" xml:space="preserve">
+    <value>الطلب غير مكتمل</value>
+  </data>
+  <data name="ApiUnauthorized" xml:space="preserve">
+    <value>غير مصرح بالوصول</value>
+  </data>
+  <data name="ApiInvalidToken" xml:space="preserve">
+    <value>رمز الدخول غير صالح</value>
+  </data>
+  <data name="ApiInvalidTimestamp" xml:space="preserve">
+    <value>الطابع الزمني غير صالح</value>
+  </data>
+  <data name="ApiExpiredTimestamp" xml:space="preserve">
+    <value>الطابع الزمني منتهي الصلاحية</value>
+  </data>
+  <data name="ApiReplayDetected" xml:space="preserve">
+    <value>تم رفض الطلب بسبب تكرار البيانات</value>
+  </data>
+  <data name="ApiInvalidSignature" xml:space="preserve">
+    <value>توقيع الطلب غير صحيح</value>
+  </data>
+  <data name="ApiNoMatch" xml:space="preserve">
+    <value>لا يوجد موظف مطابق</value>
+  </data>
+  <data name="ApiAlreadyVerified" xml:space="preserve">
+    <value>تم التحقق مسبقًا</value>
+  </data>
+  <data name="ApiVerifiedSuccess" xml:space="preserve">
+    <value>تم التحقق بنجاح</value>
+  </data>
+  <data name="ApiClientMinistryMismatch" xml:space="preserve">
+    <value>محاولة تحقق خارج نطاق الوزارة</value>
+  </data>
 </root>

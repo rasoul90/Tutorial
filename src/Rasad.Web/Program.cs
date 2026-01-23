@@ -1,6 +1,8 @@
 using System.Globalization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Rasad.Infrastructure.Identity;
 using Rasad.Infrastructure.Security;
@@ -36,6 +38,22 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 builder.Services.Configure<EncryptionOptions>(builder.Configuration.GetSection(EncryptionOptions.SectionName));
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("verify", context =>
+    {
+        var key = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetTokenBucketLimiter(key, _ => new TokenBucketRateLimiterOptions
+        {
+            TokenLimit = 30,
+            TokensPerPeriod = 30,
+            ReplenishmentPeriod = TimeSpan.FromMinutes(1),
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            QueueLimit = 0,
+            AutoReplenishment = true
+        });
+    });
+});
 
 var app = builder.Build();
 
@@ -60,6 +78,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapControllerRoute(
     name: "default",
