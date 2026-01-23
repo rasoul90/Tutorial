@@ -18,4 +18,7 @@
   <data name="PasswordRequired" xml:space="preserve">
     <value>يرجى إدخال كلمة المرور</value>
   </data>
+  <data name="RequiredField" xml:space="preserve">
+    <value>هذا الحقل مطلوب</value>
+  </data>
 </root>

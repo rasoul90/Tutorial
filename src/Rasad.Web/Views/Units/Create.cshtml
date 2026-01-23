@@ -1,0 +1,20 @@
+@model Rasad.Web.Models.UnitFormViewModel
+
+<h1 class="h4 mb-3">@SharedLocalizer["CreateNewLabel"]</h1>
+
+<form asp-action="Create" method="post" class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="mb-3">
+            <label asp-for="SectionId" class="form-label"></label>
+            <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionId"></select>
+            <span asp-validation-for="SectionId" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="NameAr" class="form-label"></label>
+            <input asp-for="NameAr" class="form-control" />
+            <span asp-validation-for="NameAr" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">@SharedLocalizer["SaveLabel"]</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">@SharedLocalizer["BackLabel"]</a>
+    </div>
+</form>

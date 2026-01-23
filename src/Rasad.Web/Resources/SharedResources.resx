@@ -51,4 +51,136 @@
   <data name="InvalidLogin" xml:space="preserve">
     <value>بيانات الدخول غير صحيحة</value>
   </data>
+  <data name="MinistriesLabel" xml:space="preserve">
+    <value>الوزارات</value>
+  </data>
+  <data name="DirectoratesLabel" xml:space="preserve">
+    <value>الدوائر</value>
+  </data>
+  <data name="DepartmentsLabel" xml:space="preserve">
+    <value>الأقسام</value>
+  </data>
+  <data name="SectionsLabel" xml:space="preserve">
+    <value>الشعب</value>
+  </data>
+  <data name="UnitsLabel" xml:space="preserve">
+    <value>الوحدات</value>
+  </data>
+  <data name="DataWindowsLabel" xml:space="preserve">
+    <value>فترات الإدخال</value>
+  </data>
+  <data name="LogoutLabel" xml:space="preserve">
+    <value>تسجيل الخروج</value>
+  </data>
+  <data name="LoginLabel" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="ActionsLabel" xml:space="preserve">
+    <value>الإجراءات</value>
+  </data>
+  <data name="CreateNewLabel" xml:space="preserve">
+    <value>إضافة جديدة</value>
+  </data>
+  <data name="EditLabel" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="DeleteLabel" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="SearchLabel" xml:space="preserve">
+    <value>بحث</value>
+  </data>
+  <data name="FilterLabel" xml:space="preserve">
+    <value>تصفية</value>
+  </data>
+  <data name="SaveLabel" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="BackLabel" xml:space="preserve">
+    <value>رجوع</value>
+  </data>
+  <data name="MinistryNameLabel" xml:space="preserve">
+    <value>اسم الوزارة</value>
+  </data>
+  <data name="MinistryCodeLabel" xml:space="preserve">
+    <value>رمز الوزارة</value>
+  </data>
+  <data name="IsActiveLabel" xml:space="preserve">
+    <value>نشط</value>
+  </data>
+  <data name="DirectorateNameLabel" xml:space="preserve">
+    <value>اسم الدائرة</value>
+  </data>
+  <data name="DepartmentNameLabel" xml:space="preserve">
+    <value>اسم القسم</value>
+  </data>
+  <data name="SectionNameLabel" xml:space="preserve">
+    <value>اسم الشعبة</value>
+  </data>
+  <data name="UnitNameLabel" xml:space="preserve">
+    <value>اسم الوحدة</value>
+  </data>
+  <data name="MinistryLabel" xml:space="preserve">
+    <value>الوزارة</value>
+  </data>
+  <data name="DirectorateLabel" xml:space="preserve">
+    <value>الدائرة</value>
+  </data>
+  <data name="DepartmentLabel" xml:space="preserve">
+    <value>القسم</value>
+  </data>
+  <data name="SectionLabel" xml:space="preserve">
+    <value>الشعبة</value>
+  </data>
+  <data name="StartAtLabel" xml:space="preserve">
+    <value>بداية الفترة</value>
+  </data>
+  <data name="EndAtLabel" xml:space="preserve">
+    <value>نهاية الفترة</value>
+  </data>
+  <data name="AfterCloseMessageLabel" xml:space="preserve">
+    <value>رسالة ما بعد الإغلاق</value>
+  </data>
+  <data name="ConfirmDeleteTitle" xml:space="preserve">
+    <value>تأكيد الحذف</value>
+  </data>
+  <data name="ConfirmDeleteMessage" xml:space="preserve">
+    <value>هل أنت متأكد من الحذف؟</value>
+  </data>
+  <data name="DeleteConfirmButton" xml:space="preserve">
+    <value>تأكيد الحذف</value>
+  </data>
+  <data name="MinistryDeleteBlocked" xml:space="preserve">
+    <value>لا يمكن حذف الوزارة لوجود بيانات مرتبطة بها</value>
+  </data>
+  <data name="DirectorateDeleteBlocked" xml:space="preserve">
+    <value>لا يمكن حذف الدائرة لوجود أقسام مرتبطة بها</value>
+  </data>
+  <data name="DepartmentDeleteBlocked" xml:space="preserve">
+    <value>لا يمكن حذف القسم لوجود شعب مرتبطة به</value>
+  </data>
+  <data name="SectionDeleteBlocked" xml:space="preserve">
+    <value>لا يمكن حذف الشعبة لوجود وحدات مرتبطة بها</value>
+  </data>
+  <data name="MinistriesTitle" xml:space="preserve">
+    <value>إدارة الوزارات</value>
+  </data>
+  <data name="DirectoratesTitle" xml:space="preserve">
+    <value>إدارة الدوائر</value>
+  </data>
+  <data name="DepartmentsTitle" xml:space="preserve">
+    <value>إدارة الأقسام</value>
+  </data>
+  <data name="SectionsTitle" xml:space="preserve">
+    <value>إدارة الشعب</value>
+  </data>
+  <data name="UnitsTitle" xml:space="preserve">
+    <value>إدارة الوحدات</value>
+  </data>
+  <data name="DataWindowsTitle" xml:space="preserve">
+    <value>إدارة فترات الإدخال</value>
+  </data>
+  <data name="NoRecordsLabel" xml:space="preserve">
+    <value>لا توجد سجلات مطابقة</value>
+  </data>
 </root>

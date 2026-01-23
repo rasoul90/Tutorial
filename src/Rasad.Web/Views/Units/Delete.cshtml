@@ -1,0 +1,21 @@
+@model Rasad.Domain.Entities.Unit
+
+<h1 class="h4 mb-3">@SharedLocalizer["ConfirmDeleteTitle"]</h1>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <p class="mb-3">@SharedLocalizer["ConfirmDeleteMessage"]</p>
+        <dl class="row">
+            <dt class="col-sm-3">@SharedLocalizer["UnitNameLabel"]</dt>
+            <dd class="col-sm-9">@Model.NameAr</dd>
+            <dt class="col-sm-3">@SharedLocalizer["SectionLabel"]</dt>
+            <dd class="col-sm-9">@Model.Section?.NameAr</dd>
+        </dl>
+        <form asp-action="DeleteConfirmed" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger">@SharedLocalizer["DeleteConfirmButton"]</button>
+            <a class="btn btn-outline-secondary" asp-action="Index" asp-route-sectionId="@Model.SectionId">@SharedLocalizer["BackLabel"]</a>
+        </form>
+    </div>
+</div>

@@ -29,6 +29,10 @@ builder.Services
     .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<IdentityErrorDescriber, ArabicIdentityErrorDescriber>();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+});
 
 var app = builder.Build();
 
