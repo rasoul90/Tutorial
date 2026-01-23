@@ -1,0 +1,65 @@
+@model Rasad.Web.Models.Users.MinistryUserCreateViewModel
+
+<h1 class="h4 mb-3">@SharedLocalizer["CreateUserTitle"]</h1>
+
+<form asp-action="Create" method="post" class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="mb-3">
+            <label asp-for="UserName" class="form-label"></label>
+            <input asp-for="UserName" class="form-control" />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="MinistryId" class="form-label"></label>
+            <select asp-for="MinistryId" class="form-select" asp-items="ViewBag.MinistryId"></select>
+            <span asp-validation-for="MinistryId" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="DirectorateId" class="form-label"></label>
+            <select asp-for="DirectorateId" class="form-select" asp-items="ViewBag.DirectorateId"></select>
+            <span asp-validation-for="DirectorateId" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="DepartmentId" class="form-label"></label>
+            <select asp-for="DepartmentId" class="form-select" asp-items="ViewBag.DepartmentId"></select>
+            <span asp-validation-for="DepartmentId" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="SectionId" class="form-label"></label>
+            <select asp-for="SectionId" class="form-select" asp-items="ViewBag.SectionId"></select>
+            <span asp-validation-for="SectionId" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="UnitId" class="form-label"></label>
+            <select asp-for="UnitId" class="form-select" asp-items="ViewBag.UnitId"></select>
+            <span asp-validation-for="UnitId" class="text-danger"></span>
+        </div>
+        <div class="form-check mb-2">
+            <input asp-for="CanImportExcel" class="form-check-input" />
+            <label asp-for="CanImportExcel" class="form-check-label"></label>
+        </div>
+        <div class="form-check mb-2">
+            <input asp-for="CanExportExcel" class="form-check-input" />
+            <label asp-for="CanExportExcel" class="form-check-label"></label>
+        </div>
+        <div class="form-check mb-3">
+            <input asp-for="CanViewNationalIdFull" class="form-check-input" />
+            <label asp-for="CanViewNationalIdFull" class="form-check-label"></label>
+        </div>
+        <div class="text-danger mb-3">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        </div>
+        <button type="submit" class="btn btn-primary">@SharedLocalizer["SaveLabel"]</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">@SharedLocalizer["BackLabel"]</a>
+    </div>
+</form>

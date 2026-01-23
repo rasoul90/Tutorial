@@ -21,4 +21,7 @@
   <data name="RequiredField" xml:space="preserve">
     <value>هذا الحقل مطلوب</value>
   </data>
+  <data name="InvalidEmail" xml:space="preserve">
+    <value>البريد الإلكتروني غير صحيح</value>
+  </data>
 </root>

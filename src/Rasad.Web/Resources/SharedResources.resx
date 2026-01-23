@@ -213,4 +213,22 @@
   <data name="HierarchyViolationMessage" xml:space="preserve">
     <value>تسلسل الهيكل الإداري غير متوافق مع البيانات المختارة</value>
   </data>
+  <data name="MinistryUsersTitle" xml:space="preserve">
+    <value>مستخدمو الوزارة</value>
+  </data>
+  <data name="CreateUserTitle" xml:space="preserve">
+    <value>إضافة مستخدم وزارة</value>
+  </data>
+  <data name="EmailLabel" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+  <data name="CanImportExcelLabel" xml:space="preserve">
+    <value>صلاحية استيراد Excel</value>
+  </data>
+  <data name="CanExportExcelLabel" xml:space="preserve">
+    <value>صلاحية تصدير Excel</value>
+  </data>
+  <data name="CanViewNationalIdFullLabel" xml:space="preserve">
+    <value>عرض الرقم الوطني كاملًا</value>
+  </data>
 </root>
