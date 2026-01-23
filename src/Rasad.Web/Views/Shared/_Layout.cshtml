@@ -38,6 +38,12 @@
                                 <a class="nav-link" asp-controller="MinistryDataWindows" asp-action="Index">@SharedLocalizer["DataWindowsLabel"]</a>
                             </li>
                         }
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Employees" asp-action="Index">@SharedLocalizer["EmployeesTitle"]</a>
+                            </li>
+                        }
                     </ul>
                     <div class="d-flex align-items-center gap-2">
                         @if (User.Identity?.IsAuthenticated == true)

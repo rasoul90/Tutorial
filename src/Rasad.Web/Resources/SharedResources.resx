@@ -183,4 +183,34 @@
   <data name="NoRecordsLabel" xml:space="preserve">
     <value>لا توجد سجلات مطابقة</value>
   </data>
+  <data name="EmployeesTitle" xml:space="preserve">
+    <value>إدارة الموظفين</value>
+  </data>
+  <data name="EmployeeFullNameLabel" xml:space="preserve">
+    <value>الاسم الكامل</value>
+  </data>
+  <data name="JobNumberLabel" xml:space="preserve">
+    <value>الرقم الوظيفي</value>
+  </data>
+  <data name="NationalIdLabel" xml:space="preserve">
+    <value>الرقم الوطني</value>
+  </data>
+  <data name="UnitLabel" xml:space="preserve">
+    <value>الوحدة</value>
+  </data>
+  <data name="WindowClosedMessage" xml:space="preserve">
+    <value>انتهت فترة إدخال/تعديل البيانات ولا يسمح بالإضافة أو التعديل أو الحذف حالياً</value>
+  </data>
+  <data name="DuplicateNationalIdMessage" xml:space="preserve">
+    <value>الرقم الوطني مكرر داخل نفس الوزارة</value>
+  </data>
+  <data name="DuplicateJobNumberMessage" xml:space="preserve">
+    <value>الرقم الوظيفي مكرر داخل نفس الوزارة</value>
+  </data>
+  <data name="ScopeViolationMessage" xml:space="preserve">
+    <value>نطاقك الإداري لا يسمح بهذا الاختيار</value>
+  </data>
+  <data name="HierarchyViolationMessage" xml:space="preserve">
+    <value>تسلسل الهيكل الإداري غير متوافق مع البيانات المختارة</value>
+  </data>
 </root>

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +13,12 @@ namespace Rasad.Web.Controllers;
 public class MinistryDataWindowsController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public MinistryDataWindowsController(ApplicationDbContext context)
+    public MinistryDataWindowsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     public async Task<IActionResult> Index(Guid? ministryId)
@@ -60,7 +63,7 @@ public class MinistryDataWindowsController : Controller
             EndAt = model.EndAt,
             IsActive = model.IsActive,
             AfterCloseMessageAr = model.AfterCloseMessageAr,
-            CreatedByUserId = User.Identity?.Name ?? string.Empty,
+            CreatedByUserId = _userManager.GetUserId(User) ?? string.Empty,
             CreatedAt = DateTime.UtcNow
         };
 
