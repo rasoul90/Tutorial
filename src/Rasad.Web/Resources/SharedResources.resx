@@ -33,4 +33,22 @@
   <data name="ErrorMessage" xml:space="preserve">
     <value>نعتذر، الرجاء المحاولة لاحقًا</value>
   </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>تسجيل الدخول</value>
+  </data>
+  <data name="LoginSubtitle" xml:space="preserve">
+    <value>يرجى إدخال بيانات الدخول للمتابعة</value>
+  </data>
+  <data name="LoginButton" xml:space="preserve">
+    <value>دخول</value>
+  </data>
+  <data name="UserNameLabel" xml:space="preserve">
+    <value>اسم المستخدم</value>
+  </data>
+  <data name="PasswordLabel" xml:space="preserve">
+    <value>كلمة المرور</value>
+  </data>
+  <data name="InvalidLogin" xml:space="preserve">
+    <value>بيانات الدخول غير صحيحة</value>
+  </data>
 </root>

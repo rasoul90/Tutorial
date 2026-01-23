@@ -1,0 +1,32 @@
+@model Rasad.Web.Models.LoginViewModel
+
+<section class="row justify-content-center">
+    <div class="col-12 col-md-6 col-lg-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h1 class="h4 fw-bold text-center mb-3">@SharedLocalizer["LoginTitle"]</h1>
+                <p class="text-muted text-center mb-4">@SharedLocalizer["LoginSubtitle"]</p>
+
+                <form asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label"></label>
+                        <input asp-for="UserName" class="form-control" autocomplete="username" />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="text-danger mb-3">
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">@SharedLocalizer["LoginButton"]</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
