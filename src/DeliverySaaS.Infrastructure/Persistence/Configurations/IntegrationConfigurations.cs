@@ -23,8 +23,11 @@ public class RoutingRuleConfiguration : IEntityTypeConfiguration<RoutingRule>
         builder.ToTable("RoutingRules");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.RuleName).HasMaxLength(150).IsRequired();
+        builder.Property(x => x.GovernorateId).IsRequired();
+        builder.Property(x => x.PartnerConnectionId).IsRequired();
         builder.Property(x => x.ConditionJson).HasColumnType("nvarchar(max)").IsRequired();
         builder.Property(x => x.ActionJson).HasColumnType("nvarchar(max)").IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.GovernorateId, x.IsActive });
     }
 }
 
@@ -46,6 +49,7 @@ public class OutboxMessageConfiguration : IEntityTypeConfiguration<OutboxMessage
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Type).HasMaxLength(120).IsRequired();
         builder.Property(x => x.Payload).HasColumnType("nvarchar(max)").IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.ProcessedAt, x.CreatedAt });
     }
 }
 
@@ -57,5 +61,6 @@ public class InboxMessageConfiguration : IEntityTypeConfiguration<InboxMessage>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Type).HasMaxLength(120).IsRequired();
         builder.Property(x => x.Payload).HasColumnType("nvarchar(max)").IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.Type, x.IsProcessed, x.ReceivedAt });
     }
 }
