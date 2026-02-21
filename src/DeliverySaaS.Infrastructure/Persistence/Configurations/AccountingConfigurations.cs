@@ -1,0 +1,60 @@
+using DeliverySaaS.Domain.Accounting.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace DeliverySaaS.Infrastructure.Persistence.Configurations;
+
+public class MerchantSettlementRequestConfiguration : IEntityTypeConfiguration<MerchantSettlementRequest>
+{
+    public void Configure(EntityTypeBuilder<MerchantSettlementRequest> builder)
+    {
+        builder.ToTable("MerchantSettlementRequests");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+        builder.Property(x => x.Status).HasMaxLength(40).IsRequired();
+    }
+}
+
+public class MerchantInvoiceConfiguration : IEntityTypeConfiguration<MerchantInvoice>
+{
+    public void Configure(EntityTypeBuilder<MerchantInvoice> builder)
+    {
+        builder.ToTable("MerchantInvoices");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.InvoiceNumber).HasMaxLength(80).IsRequired();
+        builder.Property(x => x.TotalAmount).HasColumnType("decimal(18,2)");
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.InvoiceNumber }).IsUnique();
+    }
+}
+
+public class DeliveryReconciliationConfiguration : IEntityTypeConfiguration<DeliveryReconciliation>
+{
+    public void Configure(EntityTypeBuilder<DeliveryReconciliation> builder)
+    {
+        builder.ToTable("DeliveryReconciliations");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.CollectedAmount).HasColumnType("decimal(18,2)");
+        builder.Property(x => x.DeliveredAmount).HasColumnType("decimal(18,2)");
+    }
+}
+
+public class PayrollConfiguration : IEntityTypeConfiguration<Payroll>
+{
+    public void Configure(EntityTypeBuilder<Payroll> builder)
+    {
+        builder.ToTable("Payroll");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+    }
+}
+
+public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
+{
+    public void Configure(EntityTypeBuilder<Expense> builder)
+    {
+        builder.ToTable("Expenses");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Category).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+    }
+}
