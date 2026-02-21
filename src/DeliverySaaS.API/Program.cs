@@ -5,19 +5,21 @@ using System.Threading.RateLimiting;
 using DeliverySaaS.API.Authorization;
 using DeliverySaaS.API.Extensions;
 using DeliverySaaS.API.Middleware;
-using DeliverySaaS.Application.Accounting;
-using DeliverySaaS.Application.Integration;
 using DeliverySaaS.API.Security;
-using DeliverySaaS.Application.Common.Interfaces;
-using DeliverySaaS.Application.Orders;
 using DeliverySaaS.API.Validation;
+using DeliverySaaS.Application.Accounting;
+using DeliverySaaS.Application.Common.Interfaces;
+using DeliverySaaS.Application.Integration;
+using DeliverySaaS.Application.Orders;
 using DeliverySaaS.Domain.Identity.Enums;
 using DeliverySaaS.Infrastructure.DependencyInjection;
+using DeliverySaaS.Infrastructure.Persistence;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
@@ -44,6 +46,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateSettlementRequestVali
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -118,6 +121,27 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("StartupMigration");
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var retries = 10;
+
+    while (retries-- > 0)
+    {
+        try
+        {
+            dbContext.Database.Migrate();
+            break;
+        }
+        catch (Exception ex) when (retries > 0)
+        {
+            logger.LogWarning(ex, "Database migration failed. Retrying... Remaining retries: {Retries}", retries);
+            await Task.Delay(TimeSpan.FromSeconds(5));
+        }
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -134,6 +158,7 @@ app.UseTenantBranchExtraction();
 app.UseAuthorization();
 app.MapControllers();
 app.MapRazorPages();
+app.MapHealthChecks("/health");
 
 app.Run();
 

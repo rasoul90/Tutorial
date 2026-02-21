@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  deliverysaas.api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: deliverysaas-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=sqlserver,1433;Database=DeliverySaaS;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;
+      Jwt__Issuer: DeliverySaaS
+      Jwt__Audience: DeliverySaaS.Client
+      Jwt__SecretKey: ${JWT_SECRET}
+      Hmac__SecretKey: ${HMAC_SECRET}
+    ports:
+      - "8080:8080"
+
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: deliverysaas-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${SA_PASSWORD}
+      MSSQL_PID: Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"${SA_PASSWORD}\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+volumes:
+  sqlserver-data:
