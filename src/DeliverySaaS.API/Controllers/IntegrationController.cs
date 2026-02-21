@@ -1,12 +1,14 @@
 using DeliverySaaS.Application.Integration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DeliverySaaS.API.Controllers;
 
 [ApiController]
 [Route("api/integration")]
 [Authorize]
+[EnableRateLimiting("IntegrationPolicy")]
 public class IntegrationController : ControllerBase
 {
     private readonly IIntegrationService _integrationService;
@@ -32,17 +34,23 @@ public class IntegrationController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("webhooks/{partnerName}")]
-    public async Task<IActionResult> ReceiveWebhook([FromRoute] string partnerName, [FromHeader(Name = "X-Signature")] string? signature, [FromBody] System.Text.Json.JsonElement payload, CancellationToken cancellationToken)
+    public async Task<IActionResult> ReceiveWebhook(
+        [FromRoute] string partnerName,
+        [FromHeader(Name = "X-Signature")] string? signature,
+        [FromHeader(Name = "X-Timestamp")] string? timestamp,
+        [FromHeader(Name = "X-Nonce")] string? nonce,
+        [FromBody] System.Text.Json.JsonElement payload,
+        CancellationToken cancellationToken)
     {
         var rawPayload = payload.GetRawText();
-        await _integrationService.ReceiveWebhookAsync(partnerName, rawPayload, signature, cancellationToken);
+        await _integrationService.ReceiveWebhookAsync(partnerName, rawPayload, signature, timestamp, nonce, cancellationToken);
         return Ok(new { message = "Webhook received." });
     }
 
     [HttpPost("outbox/process")]
     public async Task<IActionResult> ProcessOutbox([FromBody] ProcessOutboxRequest request, CancellationToken cancellationToken)
     {
-        var processed = await _integrationService.ProcessOutboxAsync(request.Take <= 0 ? 50 : request.Take, cancellationToken);
+        var processed = await _integrationService.ProcessOutboxAsync(request.Take, cancellationToken);
         return Ok(new { processed });
     }
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Domain.Integration.Entities;
@@ -9,12 +10,18 @@ public class IntegrationService : IIntegrationService
     private readonly IIntegrationRepository _integrationRepository;
     private readonly IRequestContext _requestContext;
     private readonly IHmacSignatureService _hmacSignatureService;
+    private readonly IReplayProtectionService _replayProtectionService;
 
-    public IntegrationService(IIntegrationRepository integrationRepository, IRequestContext requestContext, IHmacSignatureService hmacSignatureService)
+    public IntegrationService(
+        IIntegrationRepository integrationRepository,
+        IRequestContext requestContext,
+        IHmacSignatureService hmacSignatureService,
+        IReplayProtectionService replayProtectionService)
     {
         _integrationRepository = integrationRepository;
         _requestContext = requestContext;
         _hmacSignatureService = hmacSignatureService;
+        _replayProtectionService = replayProtectionService;
     }
 
     public async Task<Guid> CreatePartnerConnectionAsync(string partnerName, string baseUrl, string apiKey, CancellationToken cancellationToken = default)
@@ -29,7 +36,6 @@ public class IntegrationService : IIntegrationService
         };
 
         await _integrationRepository.AddPartnerConnectionAsync(entity, cancellationToken);
-
         await _integrationRepository.SaveChangesAsync(cancellationToken);
         return entity.Id;
     }
@@ -68,12 +74,40 @@ public class IntegrationService : IIntegrationService
         return handoff.Id;
     }
 
-    public async Task ReceiveWebhookAsync(string partnerName, string payload, string? signature, CancellationToken cancellationToken = default)
+    public async Task ReceiveWebhookAsync(
+        string partnerName,
+        string payload,
+        string? signature,
+        string? timestamp,
+        string? nonce,
+        CancellationToken cancellationToken = default)
     {
         var partner = await _integrationRepository.GetPartnerConnectionByNameAsync(partnerName, cancellationToken)
             ?? throw new InvalidOperationException("Partner connection not found.");
 
-        if (!_hmacSignatureService.ValidateSignature(payload, partner.ApiKey, signature))
+        if (!TryParseTimestamp(timestamp, out var parsedTimestamp))
+        {
+            throw new InvalidOperationException("Missing or invalid webhook timestamp.");
+        }
+
+        if (string.IsNullOrWhiteSpace(nonce))
+        {
+            throw new InvalidOperationException("Missing webhook nonce.");
+        }
+
+        if (DateTimeOffset.UtcNow - parsedTimestamp > TimeSpan.FromMinutes(5) || parsedTimestamp - DateTimeOffset.UtcNow > TimeSpan.FromMinutes(1))
+        {
+            throw new InvalidOperationException("Webhook timestamp is outside accepted window.");
+        }
+
+        var replayKey = $"webhook:{partnerName}:{nonce}:{timestamp}";
+        if (_replayProtectionService.IsReplay(replayKey, TimeSpan.FromMinutes(10)))
+        {
+            throw new InvalidOperationException("Replay attack detected.");
+        }
+
+        var canonicalPayload = $"{timestamp}.{nonce}.{payload}";
+        if (!_hmacSignatureService.ValidateSignature(canonicalPayload, partner.ApiKey, signature))
         {
             throw new InvalidOperationException("Invalid HMAC signature.");
         }
@@ -106,9 +140,8 @@ public class IntegrationService : IIntegrationService
             {
                 using var doc = JsonDocument.Parse(msg.Payload);
                 var root = doc.RootElement;
-                var handoffId = root.GetProperty("handoffId").GetGuid();
+                _ = root.GetProperty("handoffId").GetGuid();
 
-                // Placeholder dispatch: in real worker this sends HTTP with HMAC and retries.
                 msg.ProcessedAt = DateTime.UtcNow;
                 msg.Error = null;
                 processed++;
@@ -124,4 +157,9 @@ public class IntegrationService : IIntegrationService
     }
 
     private Guid RequiredBranchId() => _requestContext.BranchId ?? throw new InvalidOperationException("BranchId is required.");
+
+    private static bool TryParseTimestamp(string? timestamp, out DateTimeOffset parsed)
+    {
+        return DateTimeOffset.TryParse(timestamp, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out parsed);
+    }
 }

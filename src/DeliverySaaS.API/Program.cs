@@ -1,24 +1,67 @@
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
+using System.Threading.RateLimiting;
 using DeliverySaaS.API.Authorization;
 using DeliverySaaS.API.Extensions;
+using DeliverySaaS.API.Middleware;
 using DeliverySaaS.Application.Accounting;
 using DeliverySaaS.Application.Integration;
 using DeliverySaaS.API.Security;
 using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Application.Orders;
+using DeliverySaaS.API.Validation;
 using DeliverySaaS.Domain.Identity.Enums;
 using DeliverySaaS.Infrastructure.DependencyInjection;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Host.UseSerilog((context, services, config) =>
+{
+    config
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console();
+});
+
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow;
+    });
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateSettlementRequestValidator>();
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddFixedWindowLimiter("MobilePolicy", p =>
+    {
+        p.Window = TimeSpan.FromMinutes(1);
+        p.PermitLimit = 60;
+        p.QueueLimit = 0;
+    });
+
+    options.AddFixedWindowLimiter("IntegrationPolicy", p =>
+    {
+        p.Window = TimeSpan.FromMinutes(1);
+        p.PermitLimit = 120;
+        p.QueueLimit = 0;
+    });
+});
 
 builder.Services.AddScoped<RequestContext>();
 builder.Services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContext>());
@@ -81,8 +124,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSerilogRequestLogging();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseTenantBranchExtraction();
 app.UseAuthorization();

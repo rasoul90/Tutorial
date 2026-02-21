@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Domain.Accounting.Entities;
 using DeliverySaaS.Domain.Common.Entities;
@@ -66,6 +67,8 @@ public class ApplicationDbContext : DbContext
             {
                 modelBuilder.Entity(entityType.ClrType).Property(nameof(BaseEntity.TenantId)).IsRequired();
                 modelBuilder.Entity(entityType.ClrType).Property(nameof(BaseEntity.CreatedAt)).IsRequired();
+                modelBuilder.Entity(entityType.ClrType).Property(nameof(BaseEntity.IsDeleted)).HasDefaultValue(false).IsRequired();
+                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(CreateSoftDeleteFilter(entityType.ClrType));
             }
 
             if (typeof(BaseBranchEntity).IsAssignableFrom(entityType.ClrType))
@@ -103,10 +106,20 @@ public class ApplicationDbContext : DbContext
                 entry.Entity.TenantId = tenantId.Value;
                 entry.Entity.CreatedAt = DateTime.UtcNow;
                 entry.Entity.UpdatedAt = null;
+                entry.Entity.IsDeleted = false;
+                entry.Entity.DeletedAt = null;
             }
             else if (entry.State == EntityState.Modified)
             {
                 entry.Entity.TenantId = tenantId.Value;
+                entry.Entity.UpdatedAt = DateTime.UtcNow;
+            }
+            else if (entry.State == EntityState.Deleted)
+            {
+                entry.State = EntityState.Modified;
+                entry.Entity.TenantId = tenantId.Value;
+                entry.Entity.IsDeleted = true;
+                entry.Entity.DeletedAt = DateTime.UtcNow;
                 entry.Entity.UpdatedAt = DateTime.UtcNow;
             }
         }
@@ -123,5 +136,13 @@ public class ApplicationDbContext : DbContext
                 entry.Entity.BranchId = _requestContext.BranchId.Value;
             }
         }
+    }
+
+    private static LambdaExpression CreateSoftDeleteFilter(Type entityType)
+    {
+        var parameter = Expression.Parameter(entityType, "e");
+        var prop = Expression.Property(parameter, nameof(BaseEntity.IsDeleted));
+        var body = Expression.Equal(prop, Expression.Constant(false));
+        return Expression.Lambda(body, parameter);
     }
 }

@@ -19,11 +19,13 @@ public static class InfrastructureServiceRegistration
 
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
+        services.AddMemoryCache();
 
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IAccountingRepository, AccountingRepository>();
         services.AddScoped<IIntegrationRepository, IntegrationRepository>();
         services.AddSingleton<IHmacSignatureService, HmacSignatureService>();
+        services.AddSingleton<IReplayProtectionService, ReplayProtectionService>();
         services.AddScoped<ILabelService, LabelService>();
 
         return services;

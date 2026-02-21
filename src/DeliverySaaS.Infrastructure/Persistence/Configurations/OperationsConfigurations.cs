@@ -69,6 +69,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasMaxLength(50)
             .IsRequired();
         builder.Property(x => x.HasProblem).IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.State });
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.OrderNumber }).IsUnique();
     }
 }
@@ -80,6 +81,7 @@ public class OrderEventConfiguration : IEntityTypeConfiguration<OrderEvent>
         builder.ToTable("OrderEvents");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.EventType).HasMaxLength(100).IsRequired();
+        builder.HasIndex(x => x.OrderId);
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.OrderId, x.EventAt });
     }
 }

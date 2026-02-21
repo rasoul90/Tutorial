@@ -2,12 +2,14 @@ using DeliverySaaS.Application.Accounting;
 using DeliverySaaS.Application.Orders;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DeliverySaaS.API.Controllers.Mobile;
 
 [ApiController]
 [Route("api/mobile/merchant")]
 [Authorize]
+[EnableRateLimiting("MobilePolicy")]
 public class MerchantMobileController : ControllerBase
 {
     private readonly IOrderMobileService _orderMobileService;

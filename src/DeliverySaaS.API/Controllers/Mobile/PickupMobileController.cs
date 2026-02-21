@@ -2,12 +2,14 @@ using DeliverySaaS.Application.Orders;
 using DeliverySaaS.Domain.Operations.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DeliverySaaS.API.Controllers.Mobile;
 
 [ApiController]
 [Route("api/mobile/pickup")]
 [Authorize]
+[EnableRateLimiting("MobilePolicy")]
 public class PickupMobileController : ControllerBase
 {
     private readonly IOrderMobileService _orderMobileService;

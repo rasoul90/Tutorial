@@ -48,6 +48,7 @@ public class PricingRateConfiguration : IEntityTypeConfiguration<PricingRate>
         builder.Property(x => x.Size2Rate).HasColumnType("decimal(18,2)");
         builder.Property(x => x.Size3Rate).HasColumnType("decimal(18,2)");
         builder.Property(x => x.Size4Rate).HasColumnType("decimal(18,2)");
+        builder.HasIndex(x => new { x.TenantId, x.GovernorateId });
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.PricingCategoryId, x.AreaId }).IsUnique();
     }
 }
