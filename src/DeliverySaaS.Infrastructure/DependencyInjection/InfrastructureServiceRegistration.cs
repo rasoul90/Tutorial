@@ -1,6 +1,8 @@
 using DeliverySaaS.Application.Common.Interfaces;
+using DeliverySaaS.Application.Printing;
 using DeliverySaaS.Infrastructure.Persistence;
 using DeliverySaaS.Infrastructure.Repositories;
+using DeliverySaaS.Infrastructure.Printing;
 using DeliverySaaS.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +24,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IAccountingRepository, AccountingRepository>();
         services.AddScoped<IIntegrationRepository, IntegrationRepository>();
         services.AddSingleton<IHmacSignatureService, HmacSignatureService>();
+        services.AddScoped<ILabelService, LabelService>();
 
         return services;
     }
