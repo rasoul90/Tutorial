@@ -1,3 +1,4 @@
+using DeliverySaaS.API.Authorization;
 using DeliverySaaS.Application.Orders;
 using DeliverySaaS.Domain.Operations.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,7 @@ namespace DeliverySaaS.API.Controllers;
 
 [ApiController]
 [Route("api/orders")]
-[Authorize]
+[Authorize(Policy = AuthorizationPolicies.CanViewOrders)]
 public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
@@ -20,6 +21,7 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost("{id:guid}/transition")]
+    [Authorize(Policy = AuthorizationPolicies.CanTransitionOrders)]
     public async Task<IActionResult> Transition([FromRoute] Guid id, [FromBody] TransitionOrderRequest request, CancellationToken cancellationToken)
     {
         await _orderService.TransitionAsync(id, request.ToState, cancellationToken);
@@ -27,6 +29,7 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost("{id:guid}/problems")]
+    [Authorize(Policy = AuthorizationPolicies.CanManageOrderProblems)]
     public async Task<IActionResult> CreateProblem([FromRoute] Guid id, [FromBody] CreateOrderProblemRequest request, CancellationToken cancellationToken)
     {
         var problemId = await _orderProblemService.CreateProblemAsync(id, request.ProblemCatalogId, request.Notes, cancellationToken);
@@ -34,6 +37,7 @@ public class OrdersController : ControllerBase
     }
 
     [HttpPost("problems/{problemId:guid}/resolve")]
+    [Authorize(Policy = AuthorizationPolicies.CanManageOrderProblems)]
     public async Task<IActionResult> ResolveProblem([FromRoute] Guid problemId, [FromBody] ResolveOrderProblemRequest request, CancellationToken cancellationToken)
     {
         await _orderProblemService.ResolveProblemAsync(problemId, request.ResolutionType, request.Phone, request.AmountToCollect, request.Address, request.Note, cancellationToken);

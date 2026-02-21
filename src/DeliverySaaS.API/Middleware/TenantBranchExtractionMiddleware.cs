@@ -18,6 +18,11 @@ public class TenantBranchExtractionMiddleware
         {
             var tenantClaim = context.User.FindFirst("tenant_id")?.Value;
             var branchClaim = context.User.FindFirst("branch_id")?.Value;
+            var roles = context.User.Claims
+                .Where(x => x.Type == ClaimTypes.Role || x.Type == "role")
+                .Select(x => x.Value)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
 
             if (!Guid.TryParse(tenantClaim, out var tenantId))
             {
@@ -27,6 +32,9 @@ public class TenantBranchExtractionMiddleware
             }
 
             requestContext.TenantId = tenantId;
+            requestContext.Roles = roles;
+            requestContext.IsSaasAdmin = roles.Contains("SaaSAdmin", StringComparer.OrdinalIgnoreCase);
+            requestContext.IsCompanyAdmin = roles.Contains("CompanyAdmin", StringComparer.OrdinalIgnoreCase);
 
             if (!string.IsNullOrWhiteSpace(branchClaim) && Guid.TryParse(branchClaim, out var branchId))
             {

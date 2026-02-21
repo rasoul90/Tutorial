@@ -1,9 +1,13 @@
+using System.Security.Claims;
 using System.Text;
+using DeliverySaaS.API.Authorization;
 using DeliverySaaS.API.Extensions;
-using DeliverySaaS.Application.Orders;
 using DeliverySaaS.API.Security;
 using DeliverySaaS.Application.Common.Interfaces;
+using DeliverySaaS.Application.Orders;
+using DeliverySaaS.Domain.Identity.Enums;
 using DeliverySaaS.Infrastructure.DependencyInjection;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -17,6 +21,7 @@ builder.Services.AddScoped<RequestContext>();
 builder.Services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContext>());
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderProblemService, OrderProblemService>();
+builder.Services.AddSingleton<IClaimsTransformation, RolePermissionClaimsTransformation>();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -37,15 +42,29 @@ builder.Services
             ValidateIssuerSigningKey = true,
             ValidIssuer = issuer,
             ValidAudience = audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            RoleClaimType = ClaimTypes.Role
         };
     });
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequireAdmin", p => p.RequireRole("Admin"));
-    options.AddPolicy("RequireDispatcher", p => p.RequireRole("Dispatcher"));
-    options.AddPolicy("RequireCourier", p => p.RequireRole("Courier"));
+    options.AddPolicy(AuthorizationPolicies.CanViewOrders,
+        p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.OrdersView)));
+
+    options.AddPolicy(AuthorizationPolicies.CanTransitionOrders,
+        p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.OrdersTransition)));
+
+    options.AddPolicy(AuthorizationPolicies.CanManageOrderProblems,
+        p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.OrderProblemsManage)));
+
+    options.AddPolicy("BranchScope", p => p.RequireAssertion(ctx =>
+        ctx.User.HasClaim("branch_id", _ => true) &&
+        !ctx.User.IsInRole("CompanyAdmin") &&
+        !ctx.User.IsInRole("SaaSAdmin")));
+
+    options.AddPolicy("CompanyScope", p => p.RequireRole("CompanyAdmin"));
+    options.AddPolicy("SaaSScope", p => p.RequireRole("SaaSAdmin"));
 });
 
 var app = builder.Build();

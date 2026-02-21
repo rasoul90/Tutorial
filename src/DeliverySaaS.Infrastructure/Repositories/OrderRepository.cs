@@ -9,20 +9,24 @@ namespace DeliverySaaS.Infrastructure.Repositories;
 public class OrderRepository : IOrderRepository
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly IRequestContext _requestContext;
 
-    public OrderRepository(ApplicationDbContext dbContext)
+    public OrderRepository(ApplicationDbContext dbContext, IRequestContext requestContext)
     {
         _dbContext = dbContext;
+        _requestContext = requestContext;
     }
 
     public Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        var query = ApplyScope(_dbContext.Orders.AsQueryable());
+        return query.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
     public Task<OrderProblem?> GetProblemByIdAsync(Guid problemId, CancellationToken cancellationToken = default)
     {
-        return _dbContext.OrderProblems.FirstOrDefaultAsync(x => x.Id == problemId, cancellationToken);
+        var query = ApplyScope(_dbContext.OrderProblems.AsQueryable());
+        return query.FirstOrDefaultAsync(x => x.Id == problemId, cancellationToken);
     }
 
     public Task AddOrderProblemAsync(OrderProblem orderProblem, CancellationToken cancellationToken = default)
@@ -37,11 +41,35 @@ public class OrderRepository : IOrderRepository
 
     public Task<bool> HasOpenProblemsAsync(Guid orderId, CancellationToken cancellationToken = default)
     {
-        return _dbContext.OrderProblems.AnyAsync(x => x.OrderId == orderId && x.Status == ProblemStatus.Open, cancellationToken);
+        var query = ApplyScope(_dbContext.OrderProblems.AsQueryable());
+        return query.AnyAsync(x => x.OrderId == orderId && x.Status == ProblemStatus.Open, cancellationToken);
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private IQueryable<T> ApplyScope<T>(IQueryable<T> query) where T : class
+    {
+        var tenantId = _requestContext.TenantId;
+
+        if (_requestContext.IsSaasAdmin)
+        {
+            return query;
+        }
+
+        if (!tenantId.HasValue)
+        {
+            throw new InvalidOperationException("TenantId is required.");
+        }
+
+        if (_requestContext.IsCompanyAdmin)
+        {
+            return query.Where(x => EF.Property<Guid>(x, "TenantId") == tenantId.Value);
+        }
+
+        var branchId = _requestContext.BranchId ?? throw new InvalidOperationException("BranchId is required for branch scope.");
+        return query.Where(x => EF.Property<Guid>(x, "TenantId") == tenantId.Value && EF.Property<Guid>(x, "BranchId") == branchId);
     }
 }
