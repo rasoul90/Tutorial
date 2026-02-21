@@ -23,6 +23,7 @@ builder.Services.AddScoped<RequestContext>();
 builder.Services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContext>());
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderProblemService, OrderProblemService>();
+builder.Services.AddScoped<IOrderMobileService, OrderMobileService>();
 builder.Services.AddScoped<IAccountingService, AccountingService>();
 builder.Services.AddScoped<IIntegrationService, IntegrationService>();
 builder.Services.AddSingleton<IClaimsTransformation, RolePermissionClaimsTransformation>();

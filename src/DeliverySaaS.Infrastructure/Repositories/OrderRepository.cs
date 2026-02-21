@@ -23,6 +23,34 @@ public class OrderRepository : IOrderRepository
         return query.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+
+    public Task AddOrderAsync(Order order, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Orders.AddAsync(order, cancellationToken).AsTask();
+    }
+
+    public Task<int> CountOrdersByMerchantAsync(Guid merchantId, CancellationToken cancellationToken = default)
+    {
+        var query = ApplyScope(_dbContext.Orders.AsQueryable());
+        return query.CountAsync(x => x.MerchantId == merchantId, cancellationToken);
+    }
+
+    public Task<int> CountOpenProblemsByMerchantAsync(Guid merchantId, CancellationToken cancellationToken = default)
+    {
+        var orders = ApplyScope(_dbContext.Orders.AsQueryable()).Where(x => x.MerchantId == merchantId).Select(x => x.Id);
+        var problems = ApplyScope(_dbContext.OrderProblems.AsQueryable());
+        return problems.CountAsync(x => orders.Contains(x.OrderId) && x.Status == ProblemStatus.Open, cancellationToken);
+    }
+
+    public Task<List<Order>> GetPickupTaskListAsync(int take, CancellationToken cancellationToken = default)
+    {
+        var query = ApplyScope(_dbContext.Orders.AsQueryable())
+            .Where(x => x.State == OperationalState.New || x.State == OperationalState.InPickupAgent)
+            .OrderBy(x => x.CreatedAt)
+            .Take(take);
+        return query.ToListAsync(cancellationToken);
+    }
+
     public Task<OrderProblem?> GetProblemByIdAsync(Guid problemId, CancellationToken cancellationToken = default)
     {
         var query = ApplyScope(_dbContext.OrderProblems.AsQueryable());
