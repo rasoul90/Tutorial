@@ -1,0 +1,11 @@
+html, body {
+    font-family: "Tajawal", "Segoe UI", Tahoma, sans-serif;
+}
+
+.card-metric {
+    border-inline-start: 4px solid #0d6efd;
+}
+
+.table thead th {
+    white-space: nowrap;
+}
