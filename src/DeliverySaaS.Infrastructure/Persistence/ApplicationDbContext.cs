@@ -44,6 +44,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<DeliveryReconciliation> DeliveryReconciliations => Set<DeliveryReconciliation>();
     public DbSet<Payroll> Payroll => Set<Payroll>();
     public DbSet<Expense> Expenses => Set<Expense>();
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
     public DbSet<BranchPrintSetting> BranchPrintSettings => Set<BranchPrintSetting>();
     public DbSet<PrintJob> PrintJobs => Set<PrintJob>();
     public DbSet<PrintJobItem> PrintJobItems => Set<PrintJobItem>();

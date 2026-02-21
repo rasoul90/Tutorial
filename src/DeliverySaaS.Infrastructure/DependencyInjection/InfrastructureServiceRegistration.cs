@@ -18,6 +18,7 @@ public static class InfrastructureServiceRegistration
             options.UseSqlServer(connectionString));
 
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IAccountingRepository, AccountingRepository>();
 
         return services;
     }

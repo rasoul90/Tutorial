@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text;
 using DeliverySaaS.API.Authorization;
 using DeliverySaaS.API.Extensions;
+using DeliverySaaS.Application.Accounting;
 using DeliverySaaS.API.Security;
 using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Application.Orders;
@@ -21,6 +22,7 @@ builder.Services.AddScoped<RequestContext>();
 builder.Services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContext>());
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderProblemService, OrderProblemService>();
+builder.Services.AddScoped<IAccountingService, AccountingService>();
 builder.Services.AddSingleton<IClaimsTransformation, RolePermissionClaimsTransformation>();
 
 builder.Services.AddInfrastructure(builder.Configuration);

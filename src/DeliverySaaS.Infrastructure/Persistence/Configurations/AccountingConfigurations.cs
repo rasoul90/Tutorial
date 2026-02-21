@@ -58,3 +58,17 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
         builder.Property(x => x.Amount).HasColumnType("decimal(18,2)");
     }
 }
+
+
+public class AuditEntryConfiguration : IEntityTypeConfiguration<AuditEntry>
+{
+    public void Configure(EntityTypeBuilder<AuditEntry> builder)
+    {
+        builder.ToTable("AuditEntries");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.EntityName).HasMaxLength(120).IsRequired();
+        builder.Property(x => x.Operation).HasMaxLength(80).IsRequired();
+        builder.Property(x => x.PayloadJson).HasColumnType("nvarchar(max)").IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.EntityName, x.EntityId });
+    }
+}
