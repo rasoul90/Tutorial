@@ -6,7 +6,7 @@ public interface IOrderMobileService
 {
     Task<MerchantDashboardDto> GetMerchantDashboardAsync(Guid merchantId, CancellationToken cancellationToken = default);
     Task<Guid> CreateOrderByReservedQrAsync(CreateOrderByReservedQrRequest request, CancellationToken cancellationToken = default);
-    Task<List<PickupTaskDto>> GetPickupTasksAsync(int take = 50, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<PickupTaskDto>> GetPickupTasksAsync(int pageNumber = 1, int pageSize = 50, CancellationToken cancellationToken = default);
 }
 
 public record MerchantDashboardDto(int TotalOrders, int OpenProblems);

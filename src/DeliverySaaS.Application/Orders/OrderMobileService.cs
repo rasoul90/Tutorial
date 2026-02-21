@@ -16,9 +16,7 @@ public class OrderMobileService : IOrderMobileService
 
     public async Task<MerchantDashboardDto> GetMerchantDashboardAsync(Guid merchantId, CancellationToken cancellationToken = default)
     {
-        var total = await _orderRepository.CountOrdersByMerchantAsync(merchantId, cancellationToken);
-        var open = await _orderRepository.CountOpenProblemsByMerchantAsync(merchantId, cancellationToken);
-        return new MerchantDashboardDto(total, open);
+        return await _orderRepository.GetMerchantDashboardAsync(merchantId, cancellationToken);
     }
 
     public async Task<Guid> CreateOrderByReservedQrAsync(CreateOrderByReservedQrRequest request, CancellationToken cancellationToken = default)
@@ -41,9 +39,6 @@ public class OrderMobileService : IOrderMobileService
         return order.Id;
     }
 
-    public async Task<List<PickupTaskDto>> GetPickupTasksAsync(int take = 50, CancellationToken cancellationToken = default)
-    {
-        var list = await _orderRepository.GetPickupTaskListAsync(take, cancellationToken);
-        return list.Select(x => new PickupTaskDto(x.Id, x.OrderNumber, x.CustomerName, x.CustomerPhone, x.Address, x.State)).ToList();
-    }
+    public Task<IReadOnlyList<PickupTaskDto>> GetPickupTasksAsync(int pageNumber = 1, int pageSize = 50, CancellationToken cancellationToken = default)
+        => _orderRepository.GetPickupTaskListAsync(pageNumber, pageSize, cancellationToken);
 }

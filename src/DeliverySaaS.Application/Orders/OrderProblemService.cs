@@ -8,11 +8,13 @@ public class OrderProblemService : IOrderProblemService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IRequestContext _requestContext;
+    private readonly IReferenceDataCacheService _referenceDataCacheService;
 
-    public OrderProblemService(IOrderRepository orderRepository, IRequestContext requestContext)
+    public OrderProblemService(IOrderRepository orderRepository, IRequestContext requestContext, IReferenceDataCacheService referenceDataCacheService)
     {
         _orderRepository = orderRepository;
         _requestContext = requestContext;
+        _referenceDataCacheService = referenceDataCacheService;
     }
 
     public async Task<Guid> CreateProblemAsync(Guid orderId, Guid problemCatalogId, string? notes, CancellationToken cancellationToken = default)
@@ -21,6 +23,12 @@ public class OrderProblemService : IOrderProblemService
             ?? throw new InvalidOperationException("Order not found.");
 
         var branchId = _requestContext.BranchId ?? throw new InvalidOperationException("BranchId is required.");
+
+        var problemCatalogExists = await _referenceDataCacheService.ProblemCatalogExistsAsync(problemCatalogId, cancellationToken);
+        if (!problemCatalogExists)
+        {
+            throw new InvalidOperationException("Problem catalog not found.");
+        }
 
         var problem = new OrderProblem
         {
@@ -56,6 +64,12 @@ public class OrderProblemService : IOrderProblemService
         if (problem.Status == ProblemStatus.Resolved)
         {
             throw new InvalidOperationException("Order problem is already resolved.");
+        }
+
+        var problemCatalogExists = await _referenceDataCacheService.ProblemCatalogExistsAsync(problem.ProblemCatalogId, cancellationToken);
+        if (!problemCatalogExists)
+        {
+            throw new InvalidOperationException("Problem catalog not found.");
         }
 
         var order = await _orderRepository.GetByIdAsync(problem.OrderId, cancellationToken)

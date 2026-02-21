@@ -75,7 +75,7 @@ public class FakeOrderMobileService : IOrderMobileService
     public Task<Guid> CreateOrderByReservedQrAsync(CreateOrderByReservedQrRequest request, CancellationToken cancellationToken = default)
         => Task.FromResult(Guid.NewGuid());
 
-    public Task<List<PickupTaskDto>> GetPickupTasksAsync(int take = 50, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<PickupTaskDto>> GetPickupTasksAsync(int pageNumber = 1, int pageSize = 50, CancellationToken cancellationToken = default)
         => Task.FromResult(new List<PickupTaskDto>
         {
             new(Guid.NewGuid(), "ORD-T", "C", "010", "Addr", OperationalState.New)

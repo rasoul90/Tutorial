@@ -26,8 +26,8 @@ public class ScopeEnforcementIntegrationTests
         await using var db = CreateDb(dbName, ctx);
         var repo = new OrderRepository(db, ctx);
 
-        var count = await repo.CountOrdersByMerchantAsync(merchant);
-        Assert.Equal(1, count);
+        var dashboard = await repo.GetMerchantDashboardAsync(merchant);
+        Assert.Equal(1, dashboard.TotalOrders);
     }
 
     [Fact]
@@ -48,8 +48,8 @@ public class ScopeEnforcementIntegrationTests
         await using var db = CreateDb(dbName, ctx);
         var repo = new OrderRepository(db, ctx);
 
-        var count = await repo.CountOrdersByMerchantAsync(merchant);
-        Assert.Equal(2, count);
+        var dashboard = await repo.GetMerchantDashboardAsync(merchant);
+        Assert.Equal(2, dashboard.TotalOrders);
     }
 
     private static async Task SeedOrder(string dbName, Guid tenantId, Guid branchId, Guid merchantId, string orderNumber)

@@ -1,4 +1,5 @@
 using DeliverySaaS.Application.Common.Interfaces;
+using DeliverySaaS.Application.Orders;
 using DeliverySaaS.Domain.Operations.Entities;
 using DeliverySaaS.Domain.Operations.Enums;
 using DeliverySaaS.Infrastructure.Persistence;
@@ -23,32 +24,32 @@ public class OrderRepository : IOrderRepository
         return query.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-
     public Task AddOrderAsync(Order order, CancellationToken cancellationToken = default)
+        => _dbContext.Orders.AddAsync(order, cancellationToken).AsTask();
+
+    public async Task<MerchantDashboardDto> GetMerchantDashboardAsync(Guid merchantId, CancellationToken cancellationToken = default)
     {
-        return _dbContext.Orders.AddAsync(order, cancellationToken).AsTask();
+        var query = ApplyScope(_dbContext.Orders.AsNoTracking())
+            .Where(x => x.MerchantId == merchantId)
+            .GroupBy(_ => 1)
+            .Select(g => new MerchantDashboardDto(g.Count(), g.Count(x => x.ProblemStatus == ProblemStatus.Open)));
+
+        return await query.FirstOrDefaultAsync(cancellationToken) ?? new MerchantDashboardDto(0, 0);
     }
 
-    public Task<int> CountOrdersByMerchantAsync(Guid merchantId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<PickupTaskDto>> GetPickupTaskListAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
-        var query = ApplyScope(_dbContext.Orders.AsQueryable());
-        return query.CountAsync(x => x.MerchantId == merchantId, cancellationToken);
-    }
+        var normalizedPage = pageNumber <= 0 ? 1 : pageNumber;
+        var normalizedSize = pageSize <= 0 ? 50 : Math.Min(pageSize, 200);
 
-    public Task<int> CountOpenProblemsByMerchantAsync(Guid merchantId, CancellationToken cancellationToken = default)
-    {
-        var orders = ApplyScope(_dbContext.Orders.AsQueryable()).Where(x => x.MerchantId == merchantId).Select(x => x.Id);
-        var problems = ApplyScope(_dbContext.OrderProblems.AsQueryable());
-        return problems.CountAsync(x => orders.Contains(x.OrderId) && x.Status == ProblemStatus.Open, cancellationToken);
-    }
-
-    public Task<List<Order>> GetPickupTaskListAsync(int take, CancellationToken cancellationToken = default)
-    {
-        var query = ApplyScope(_dbContext.Orders.AsQueryable())
+        var query = ApplyScope(_dbContext.Orders.AsNoTracking())
             .Where(x => x.State == OperationalState.New || x.State == OperationalState.InPickupAgent)
             .OrderBy(x => x.CreatedAt)
-            .Take(take);
-        return query.ToListAsync(cancellationToken);
+            .Skip((normalizedPage - 1) * normalizedSize)
+            .Take(normalizedSize)
+            .Select(x => new PickupTaskDto(x.Id, x.OrderNumber, x.CustomerName, x.CustomerPhone, x.Address, x.State));
+
+        return await query.ToListAsync(cancellationToken);
     }
 
     public Task<OrderProblem?> GetProblemByIdAsync(Guid problemId, CancellationToken cancellationToken = default)
@@ -58,25 +59,19 @@ public class OrderRepository : IOrderRepository
     }
 
     public Task AddOrderProblemAsync(OrderProblem orderProblem, CancellationToken cancellationToken = default)
-    {
-        return _dbContext.OrderProblems.AddAsync(orderProblem, cancellationToken).AsTask();
-    }
+        => _dbContext.OrderProblems.AddAsync(orderProblem, cancellationToken).AsTask();
 
     public Task AddOrderEventAsync(OrderEvent orderEvent, CancellationToken cancellationToken = default)
-    {
-        return _dbContext.OrderEvents.AddAsync(orderEvent, cancellationToken).AsTask();
-    }
+        => _dbContext.OrderEvents.AddAsync(orderEvent, cancellationToken).AsTask();
 
     public Task<bool> HasOpenProblemsAsync(Guid orderId, CancellationToken cancellationToken = default)
     {
-        var query = ApplyScope(_dbContext.OrderProblems.AsQueryable());
+        var query = ApplyScope(_dbContext.OrderProblems.AsNoTracking());
         return query.AnyAsync(x => x.OrderId == orderId && x.Status == ProblemStatus.Open, cancellationToken);
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        return _dbContext.SaveChangesAsync(cancellationToken);
-    }
+        => _dbContext.SaveChangesAsync(cancellationToken);
 
     private IQueryable<T> ApplyScope<T>(IQueryable<T> query) where T : class
     {

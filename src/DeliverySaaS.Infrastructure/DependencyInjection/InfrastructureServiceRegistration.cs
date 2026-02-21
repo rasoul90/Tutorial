@@ -4,6 +4,7 @@ using DeliverySaaS.Infrastructure.Persistence;
 using DeliverySaaS.Infrastructure.Repositories;
 using DeliverySaaS.Infrastructure.Printing;
 using DeliverySaaS.Infrastructure.Security;
+using DeliverySaaS.Infrastructure.Caching;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IIntegrationRepository, IntegrationRepository>();
         services.AddSingleton<IHmacSignatureService, HmacSignatureService>();
         services.AddSingleton<IReplayProtectionService, ReplayProtectionService>();
+        services.AddScoped<IReferenceDataCacheService, ReferenceDataCacheService>();
         services.AddScoped<ILabelService, LabelService>();
 
         return services;

@@ -20,13 +20,13 @@ public class IntegrationRepository : IIntegrationRepository
         => _dbContext.PartnerConnections.AddAsync(entity, cancellationToken).AsTask();
 
     public Task<PartnerConnection?> GetPartnerConnectionByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => Scoped(_dbContext.PartnerConnections).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        => Scoped(_dbContext.PartnerConnections.AsNoTracking()).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
     public Task<PartnerConnection?> GetPartnerConnectionByNameAsync(string partnerName, CancellationToken cancellationToken = default)
-        => Scoped(_dbContext.PartnerConnections).FirstOrDefaultAsync(x => x.PartnerName == partnerName, cancellationToken);
+        => Scoped(_dbContext.PartnerConnections.AsNoTracking()).FirstOrDefaultAsync(x => x.PartnerName == partnerName, cancellationToken);
 
     public Task<RoutingRule?> GetRoutingRuleByGovernorateAsync(Guid governorateId, CancellationToken cancellationToken = default)
-        => Scoped(_dbContext.RoutingRules).Where(x => x.IsActive && x.GovernorateId == governorateId).OrderBy(x => x.CreatedAt).FirstOrDefaultAsync(cancellationToken);
+        => Scoped(_dbContext.RoutingRules.AsNoTracking()).Where(x => x.IsActive && x.GovernorateId == governorateId).OrderBy(x => x.CreatedAt).FirstOrDefaultAsync(cancellationToken);
 
     public Task AddOrderHandoffAsync(OrderHandoff handoff, CancellationToken cancellationToken = default)
         => _dbContext.OrderHandoffs.AddAsync(handoff, cancellationToken).AsTask();
@@ -50,7 +50,7 @@ public class IntegrationRepository : IIntegrationRepository
     public Task<bool> InboxMessageExistsAsync(string messageType, string payload, CancellationToken cancellationToken = default)
     {
         var tenantId = _requestContext.TenantId ?? throw new InvalidOperationException("TenantId is required.");
-        return _dbContext.InboxMessages.AnyAsync(x => x.TenantId == tenantId && x.Type == messageType && x.Payload == payload, cancellationToken);
+        return _dbContext.InboxMessages.AsNoTracking().AnyAsync(x => x.TenantId == tenantId && x.Type == messageType && x.Payload == payload, cancellationToken);
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)

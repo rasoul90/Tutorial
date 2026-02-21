@@ -12,7 +12,7 @@ public class ProblemResolutionTests
     {
         var repo = new FakeOrderRepository { HasOpenProblemsResult = false };
         var ctx = new TestRequestContext { TenantId = Guid.NewGuid(), BranchId = Guid.NewGuid() };
-        var service = new OrderProblemService(repo, ctx);
+        var service = new OrderProblemService(repo, ctx, new FakeReferenceDataCacheService());
 
         var order = new Order
         {

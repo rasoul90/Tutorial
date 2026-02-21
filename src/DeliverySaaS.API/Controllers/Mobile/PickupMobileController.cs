@@ -22,9 +22,9 @@ public class PickupMobileController : ControllerBase
     }
 
     [HttpGet("tasks")]
-    public async Task<IActionResult> TaskList([FromQuery] int take = 50, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> TaskList([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 50, CancellationToken cancellationToken = default)
     {
-        var list = await _orderMobileService.GetPickupTasksAsync(take, cancellationToken);
+        var list = await _orderMobileService.GetPickupTasksAsync(pageNumber, pageSize, cancellationToken);
         return Ok(list);
     }
 

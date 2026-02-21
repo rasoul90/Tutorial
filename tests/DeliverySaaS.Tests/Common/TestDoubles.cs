@@ -1,4 +1,6 @@
 using DeliverySaaS.Application.Common.Interfaces;
+using DeliverySaaS.Application.Orders;
+using DeliverySaaS.Application.Common.Models;
 using DeliverySaaS.Domain.Accounting.Entities;
 using DeliverySaaS.Domain.Operations.Entities;
 using DeliverySaaS.Domain.Operations.Enums;
@@ -30,17 +32,26 @@ public class FakeOrderRepository : IOrderRepository
         return Task.CompletedTask;
     }
 
-    public Task<int> CountOrdersByMerchantAsync(Guid merchantId, CancellationToken cancellationToken = default)
-        => Task.FromResult(Orders.Values.Count(x => x.MerchantId == merchantId));
-
-    public Task<int> CountOpenProblemsByMerchantAsync(Guid merchantId, CancellationToken cancellationToken = default)
+    public Task<MerchantDashboardDto> GetMerchantDashboardAsync(Guid merchantId, CancellationToken cancellationToken = default)
     {
-        var orderIds = Orders.Values.Where(x => x.MerchantId == merchantId).Select(x => x.Id).ToHashSet();
-        return Task.FromResult(Problems.Values.Count(x => orderIds.Contains(x.OrderId) && x.Status == ProblemStatus.Open));
+        var merchantOrders = Orders.Values.Where(x => x.MerchantId == merchantId).ToList();
+        var open = merchantOrders.Count(x => x.ProblemStatus == ProblemStatus.Open);
+        return Task.FromResult(new MerchantDashboardDto(merchantOrders.Count, open));
     }
 
-    public Task<List<Order>> GetPickupTaskListAsync(int take, CancellationToken cancellationToken = default)
-        => Task.FromResult(Orders.Values.Take(take).ToList());
+
+    public Task<IReadOnlyList<PickupTaskDto>> GetPickupTaskListAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
+    {
+        var page = pageNumber <= 0 ? 1 : pageNumber;
+        var size = pageSize <= 0 ? 50 : pageSize;
+        var items = Orders.Values
+            .Skip((page - 1) * size)
+            .Take(size)
+            .Select(x => new PickupTaskDto(x.Id, x.OrderNumber, x.CustomerName, x.CustomerPhone, x.Address, x.State))
+            .ToList();
+
+        return Task.FromResult((IReadOnlyList<PickupTaskDto>)items);
+    }
 
     public Task<OrderProblem?> GetProblemByIdAsync(Guid problemId, CancellationToken cancellationToken = default)
         => Task.FromResult(Problems.GetValueOrDefault(problemId));
@@ -100,4 +111,19 @@ public class FakeAccountingRepository : IAccountingRepository
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+}
+
+public class FakeReferenceDataCacheService : IReferenceDataCacheService
+{
+    public bool GovernorateExists { get; set; } = true;
+    public bool ProblemCatalogExists { get; set; } = true;
+
+    public Task<bool> GovernorateExistsAsync(Guid governorateId, CancellationToken cancellationToken = default)
+        => Task.FromResult(GovernorateExists);
+
+    public Task<bool> ProblemCatalogExistsAsync(Guid problemCatalogId, CancellationToken cancellationToken = default)
+        => Task.FromResult(ProblemCatalogExists);
+
+    public Task<PricingLookupDto?> GetPricingAsync(Guid pricingCategoryId, Guid areaId, CancellationToken cancellationToken = default)
+        => Task.FromResult<PricingLookupDto?>(null);
 }

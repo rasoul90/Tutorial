@@ -11,17 +11,20 @@ public class IntegrationService : IIntegrationService
     private readonly IRequestContext _requestContext;
     private readonly IHmacSignatureService _hmacSignatureService;
     private readonly IReplayProtectionService _replayProtectionService;
+    private readonly IReferenceDataCacheService _referenceDataCacheService;
 
     public IntegrationService(
         IIntegrationRepository integrationRepository,
         IRequestContext requestContext,
         IHmacSignatureService hmacSignatureService,
-        IReplayProtectionService replayProtectionService)
+        IReplayProtectionService replayProtectionService,
+        IReferenceDataCacheService referenceDataCacheService)
     {
         _integrationRepository = integrationRepository;
         _requestContext = requestContext;
         _hmacSignatureService = hmacSignatureService;
         _replayProtectionService = replayProtectionService;
+        _referenceDataCacheService = referenceDataCacheService;
     }
 
     public async Task<Guid> CreatePartnerConnectionAsync(string partnerName, string baseUrl, string apiKey, CancellationToken cancellationToken = default)
@@ -42,6 +45,12 @@ public class IntegrationService : IIntegrationService
 
     public async Task<Guid> CreateOutboundHandoffAsync(Guid orderId, Guid governorateId, CancellationToken cancellationToken = default)
     {
+        var governorateExists = await _referenceDataCacheService.GovernorateExistsAsync(governorateId, cancellationToken);
+        if (!governorateExists)
+        {
+            throw new InvalidOperationException("Governorate not found.");
+        }
+
         var rule = await _integrationRepository.GetRoutingRuleByGovernorateAsync(governorateId, cancellationToken)
             ?? throw new InvalidOperationException("No active routing rule for this governorate.");
 
