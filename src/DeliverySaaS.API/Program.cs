@@ -1,5 +1,6 @@
 using System.Text;
 using DeliverySaaS.API.Extensions;
+using DeliverySaaS.Application.Orders;
 using DeliverySaaS.API.Security;
 using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Infrastructure.DependencyInjection;
@@ -14,6 +15,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<RequestContext>();
 builder.Services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContext>());
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 

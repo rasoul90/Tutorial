@@ -1,4 +1,6 @@
+using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Infrastructure.Persistence;
+using DeliverySaaS.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +16,8 @@ public static class InfrastructureServiceRegistration
 
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
+
+        services.AddScoped<IOrderRepository, OrderRepository>();
 
         return services;
     }

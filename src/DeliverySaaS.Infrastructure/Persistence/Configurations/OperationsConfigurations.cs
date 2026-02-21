@@ -1,4 +1,5 @@
 using DeliverySaaS.Domain.Operations.Entities;
+using DeliverySaaS.Domain.Operations.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -46,6 +47,10 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.CustomerPhone).HasMaxLength(30).IsRequired();
         builder.Property(x => x.Address).HasMaxLength(500).IsRequired();
         builder.Property(x => x.AmountToCollect).HasColumnType("decimal(18,2)");
+        builder.Property(x => x.State)
+            .HasConversion<string>()
+            .HasMaxLength(50)
+            .IsRequired();
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.OrderNumber }).IsUnique();
     }
 }
