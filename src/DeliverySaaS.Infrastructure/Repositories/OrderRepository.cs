@@ -1,5 +1,6 @@
 using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Domain.Operations.Entities;
+using DeliverySaaS.Domain.Operations.Enums;
 using DeliverySaaS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,9 +20,24 @@ public class OrderRepository : IOrderRepository
         return _dbContext.Orders.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public Task<OrderProblem?> GetProblemByIdAsync(Guid problemId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.OrderProblems.FirstOrDefaultAsync(x => x.Id == problemId, cancellationToken);
+    }
+
+    public Task AddOrderProblemAsync(OrderProblem orderProblem, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.OrderProblems.AddAsync(orderProblem, cancellationToken).AsTask();
+    }
+
     public Task AddOrderEventAsync(OrderEvent orderEvent, CancellationToken cancellationToken = default)
     {
         return _dbContext.OrderEvents.AddAsync(orderEvent, cancellationToken).AsTask();
+    }
+
+    public Task<bool> HasOpenProblemsAsync(Guid orderId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.OrderProblems.AnyAsync(x => x.OrderId == orderId && x.Status == ProblemStatus.Open, cancellationToken);
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)

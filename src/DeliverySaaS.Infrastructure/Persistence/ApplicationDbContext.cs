@@ -34,6 +34,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderEvent> OrderEvents => Set<OrderEvent>();
     public DbSet<OrderProblem> OrderProblems => Set<OrderProblem>();
+    public DbSet<ProblemCatalog> ProblemCatalogs => Set<ProblemCatalog>();
     public DbSet<Governorate> Governorates => Set<Governorate>();
     public DbSet<Area> Areas => Set<Area>();
     public DbSet<PricingCategory> PricingCategories => Set<PricingCategory>();

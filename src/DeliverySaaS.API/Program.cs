@@ -16,6 +16,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<RequestContext>();
 builder.Services.AddScoped<IRequestContext>(sp => sp.GetRequiredService<RequestContext>());
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderProblemService, OrderProblemService>();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
