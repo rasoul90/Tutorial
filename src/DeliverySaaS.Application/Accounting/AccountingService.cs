@@ -1,5 +1,7 @@
 using System.Text.Json;
+using DeliverySaaS.Application.Auditing;
 using DeliverySaaS.Application.Common.Interfaces;
+using DeliverySaaS.Application.Notifications;
 using DeliverySaaS.Domain.Accounting.Entities;
 using DeliverySaaS.Domain.Operations.Entities;
 using DeliverySaaS.Domain.Operations.Enums;
@@ -11,12 +13,16 @@ public class AccountingService : IAccountingService
     private readonly IAccountingRepository _accountingRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IRequestContext _requestContext;
+    private readonly INotificationService? _notificationService;
+    private readonly IAuditLogService? _auditLogService;
 
-    public AccountingService(IAccountingRepository accountingRepository, IOrderRepository orderRepository, IRequestContext requestContext)
+    public AccountingService(IAccountingRepository accountingRepository, IOrderRepository orderRepository, IRequestContext requestContext, INotificationService? notificationService = null, IAuditLogService? auditLogService = null)
     {
         _accountingRepository = accountingRepository;
         _orderRepository = orderRepository;
         _requestContext = requestContext;
+        _notificationService = notificationService;
+        _auditLogService = auditLogService;
     }
 
     public async Task<Guid> CreateMerchantSettlementRequestAsync(Guid merchantId, decimal amount, CancellationToken cancellationToken = default)
@@ -56,6 +62,8 @@ public class AccountingService : IAccountingService
         await AddAuditAsync("MerchantSettlementRequest", entity.Id, "Create", entity, cancellationToken);
         await _accountingRepository.SaveChangesAsync(cancellationToken);
         await _orderRepository.SaveChangesAsync(cancellationToken);
+        if (_notificationService != null) await _notificationService.CreateAsync(null, "Finance", "طلب تحاسب تاجر", "تم إنشاء طلب تحاسب جديد", Domain.Notifications.Enums.NotificationType.Settlement, "Settlement", entity.Id, cancellationToken);
+        if (_auditLogService != null) await _auditLogService.WriteAsync("SETTLEMENT_CREATED", "MerchantSettlementRequest", entity.Id.ToString(), "إنشاء طلب تحاسب تاجر", "{}", cancellationToken: cancellationToken);
         return entity.Id;
     }
 
@@ -138,6 +146,8 @@ public class AccountingService : IAccountingService
                     EventAt = DateTime.UtcNow,
                     BranchId = RequiredBranchId()
                 }, cancellationToken);
+                if (_notificationService != null) await _notificationService.CreateAsync(null, "Warehouse", "استلام راجع بالمخزن", "تم إدخال راجع إلى المخزن", Domain.Notifications.Enums.NotificationType.OrderState, "Order", order.Id, cancellationToken);
+                if (_notificationService != null) await _notificationService.CreateAsync(null, "FollowUp", "استلام راجع بالمخزن", "تم إدخال راجع إلى المخزن", Domain.Notifications.Enums.NotificationType.OrderState, "Order", order.Id, cancellationToken);
             }
         }
 
@@ -145,6 +155,9 @@ public class AccountingService : IAccountingService
         await AddAuditAsync("DeliveryReconciliation", entity.Id, "Record", entity, cancellationToken);
         await _accountingRepository.SaveChangesAsync(cancellationToken);
         await _orderRepository.SaveChangesAsync(cancellationToken);
+        if (_notificationService != null) await _notificationService.CreateAsync(null, "Finance", "إغلاق تسوية مندوب", "تم إغلاق تسوية مندوب تسليم", Domain.Notifications.Enums.NotificationType.Settlement, "Reconciliation", entity.Id, cancellationToken);
+        if (_notificationService != null) await _notificationService.CreateAsync(null, "BranchManager", "إغلاق تسوية مندوب", "تم إغلاق تسوية مندوب تسليم", Domain.Notifications.Enums.NotificationType.Settlement, "Reconciliation", entity.Id, cancellationToken);
+        if (_auditLogService != null) await _auditLogService.WriteAsync("DELIVERY_SETTLEMENT_CLOSED", "DeliveryReconciliation", entity.Id.ToString(), "إغلاق تسوية مندوب", "{}", cancellationToken: cancellationToken);
         return entity.Id;
     }
 

@@ -1,5 +1,7 @@
 using System.Text.Json;
+using DeliverySaaS.Application.Auditing;
 using DeliverySaaS.Application.Common.Interfaces;
+using DeliverySaaS.Application.Notifications;
 using DeliverySaaS.Domain.Accounting.Entities;
 using DeliverySaaS.Domain.Operations.Entities;
 using DeliverySaaS.Domain.Operations.Enums;
@@ -10,11 +12,15 @@ public class MerchantPaymentsService : IMerchantPaymentsService
 {
     private readonly IMerchantPaymentsRepository _repository;
     private readonly IRequestContext _requestContext;
+    private readonly IAuditLogService? _auditLogService;
+    private readonly INotificationService? _notificationService;
 
-    public MerchantPaymentsService(IMerchantPaymentsRepository repository, IRequestContext requestContext)
+    public MerchantPaymentsService(IMerchantPaymentsRepository repository, IRequestContext requestContext, IAuditLogService? auditLogService = null, INotificationService? notificationService = null)
     {
         _repository = repository;
         _requestContext = requestContext;
+        _auditLogService = auditLogService;
+        _notificationService = notificationService;
     }
 
     public async Task<MerchantPaymentResultDto> CreatePaymentAsync(CreateMerchantPaymentRequest request, CancellationToken cancellationToken = default)
@@ -70,6 +76,14 @@ public class MerchantPaymentsService : IMerchantPaymentsService
         }
 
         await _repository.SaveChangesAsync(cancellationToken);
+        if (_auditLogService != null)
+        {
+            await _auditLogService.WriteAsync("PAYMENT_CREATED", "MerchantPayment", payment.Id.ToString(), "تم إنشاء دفعة تاجر", JsonSerializer.Serialize(new { amount = request.Amount, allocated }), cancellationToken: cancellationToken);
+        }
+        if (_notificationService != null)
+        {
+            await _notificationService.CreateAsync(null, "Finance", "دفعة تاجر جديدة", "تم تسجيل دفعة جديدة للتاجر", Domain.Notifications.Enums.NotificationType.Payment, "Payment", payment.Id, cancellationToken);
+        }
         return new MerchantPaymentResultDto(payment.Id, allocated, remaining);
     }
 

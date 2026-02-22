@@ -48,6 +48,11 @@ public class OrderService : IOrderService
             await ApplyDeliveryFinancialsAsync(order, deliveredWithReturn, branchId, cancellationToken);
         }
 
+        if (toState == OperationalState.ReturnedToMerchant)
+        {
+            order.ReturnedToMerchantAt = DateTime.UtcNow;
+        }
+
         var orderEvent = new OrderEvent
         {
             OrderId = order.Id,

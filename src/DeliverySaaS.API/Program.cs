@@ -12,6 +12,9 @@ using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Application.Integration;
 using DeliverySaaS.Application.Orders;
 using DeliverySaaS.Application.Payments;
+using DeliverySaaS.Application.Notifications;
+using DeliverySaaS.Application.Auditing;
+using DeliverySaaS.Application.Archiving;
 using DeliverySaaS.Domain.Identity.Enums;
 using DeliverySaaS.Infrastructure.DependencyInjection;
 using DeliverySaaS.Infrastructure.Persistence;
@@ -75,6 +78,10 @@ builder.Services.AddScoped<IOrderMobileService, OrderMobileService>();
 builder.Services.AddScoped<IAccountingService, AccountingService>();
 builder.Services.AddScoped<IIntegrationService, IntegrationService>();
 builder.Services.AddScoped<IMerchantPaymentsService, MerchantPaymentsService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<INotificationSender, NoOpNotificationSender>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IArchiveService, ArchiveService>();
 builder.Services.AddSingleton<IClaimsTransformation, RolePermissionClaimsTransformation>();
 
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -163,6 +170,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseSerilogRequestLogging();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<AuditLoggingMiddleware>();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRateLimiter();

@@ -90,6 +90,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.IsDeliveryAgentSettled).HasDefaultValue(false).IsRequired();
         builder.Property(x => x.IsMerchantSettled).HasDefaultValue(false).IsRequired();
         builder.Property(x => x.HasReturn).HasDefaultValue(false).IsRequired();
+        builder.Property(x => x.ReturnedToMerchantAt);
 
         builder.Property(x => x.HasProblem).IsRequired();
 
@@ -99,6 +100,8 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.HasReturn, x.State });
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.MerchantId, x.IsDeliveryAgentSettled, x.IsMerchantSettled });
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.OrderNumber }).IsUnique();
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.State });
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.MerchantId, x.DeliveredAt });
     }
 }
 

@@ -1,4 +1,6 @@
+using DeliverySaaS.Application.Auditing;
 using DeliverySaaS.Application.Common.Interfaces;
+using DeliverySaaS.Application.Notifications;
 using DeliverySaaS.Domain.Operations.Entities;
 using DeliverySaaS.Domain.Operations.Enums;
 
@@ -9,12 +11,16 @@ public class OrderProblemService : IOrderProblemService
     private readonly IOrderRepository _orderRepository;
     private readonly IRequestContext _requestContext;
     private readonly IReferenceDataCacheService _referenceDataCacheService;
+    private readonly INotificationService? _notificationService;
+    private readonly IAuditLogService? _auditLogService;
 
-    public OrderProblemService(IOrderRepository orderRepository, IRequestContext requestContext, IReferenceDataCacheService referenceDataCacheService)
+    public OrderProblemService(IOrderRepository orderRepository, IRequestContext requestContext, IReferenceDataCacheService referenceDataCacheService, INotificationService? notificationService = null, IAuditLogService? auditLogService = null)
     {
         _orderRepository = orderRepository;
         _requestContext = requestContext;
         _referenceDataCacheService = referenceDataCacheService;
+        _notificationService = notificationService;
+        _auditLogService = auditLogService;
     }
 
     public async Task<Guid> CreateProblemAsync(Guid orderId, Guid problemCatalogId, string? notes, CancellationToken cancellationToken = default)
@@ -53,6 +59,14 @@ public class OrderProblemService : IOrderProblemService
         }, cancellationToken);
 
         await _orderRepository.SaveChangesAsync(cancellationToken);
+        if (_notificationService != null)
+        {
+            await _notificationService.CreateAsync(null, "FollowUp", "مشكلة جديدة", "تم تبليغ مشكلة جديدة على طلب", Domain.Notifications.Enums.NotificationType.Problem, "Order", orderId, cancellationToken);
+        }
+        if (_auditLogService != null)
+        {
+            await _auditLogService.WriteAsync("PROBLEM_CREATED", "OrderProblem", problem.Id.ToString(), "فتح مشكلة على الطلب", "{}", cancellationToken: cancellationToken);
+        }
         return problem.Id;
     }
 

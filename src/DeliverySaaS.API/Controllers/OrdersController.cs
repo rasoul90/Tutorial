@@ -13,12 +13,19 @@ public class OrdersController : ControllerBase
 {
     private readonly IOrderService _orderService;
     private readonly IOrderProblemService _orderProblemService;
+    private readonly IOrderSearchQueryService _orderSearchQueryService;
 
-    public OrdersController(IOrderService orderService, IOrderProblemService orderProblemService)
+    public OrdersController(IOrderService orderService, IOrderProblemService orderProblemService, IOrderSearchQueryService orderSearchQueryService)
     {
         _orderService = orderService;
         _orderProblemService = orderProblemService;
+        _orderSearchQueryService = orderSearchQueryService;
     }
+
+    [Authorize(Policy = AuthorizationPolicies.CanViewFinancialReports)]
+    [HttpGet("search")]
+    public Task<DeliverySaaS.Application.Common.Models.PagedResult<OrderSearchRowDto>> Search([FromQuery] bool includeArchive = false, [FromQuery] int page = 1, [FromQuery] int size = 20, CancellationToken cancellationToken = default)
+        => _orderSearchQueryService.SearchAsync(includeArchive, page, size, cancellationToken);
 
     [HttpPost("{id:guid}/transition")]
     [Authorize(Policy = AuthorizationPolicies.CanTransitionOrders)]

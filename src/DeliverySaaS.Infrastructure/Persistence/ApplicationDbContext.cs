@@ -1,6 +1,9 @@
 using System.Linq.Expressions;
 using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Domain.Accounting.Entities;
+using DeliverySaaS.Domain.Operations.ArchiveEntities;
+using DeliverySaaS.Domain.Notifications.Entities;
+using DeliverySaaS.Domain.Auditing.Entities;
 using DeliverySaaS.Domain.Common.Entities;
 using DeliverySaaS.Domain.Geo.Entities;
 using DeliverySaaS.Domain.Identity.Entities;
@@ -56,6 +59,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<OrderHandoff> OrderHandoffs => Set<OrderHandoff>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<InboxMessage> InboxMessages => Set<InboxMessage>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<OrderArchive> OrdersArchive => Set<OrderArchive>();
+    public DbSet<OrderEventArchive> OrderEventsArchive => Set<OrderEventArchive>();
+    public DbSet<OrderProblemArchive> OrderProblemsArchive => Set<OrderProblemArchive>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

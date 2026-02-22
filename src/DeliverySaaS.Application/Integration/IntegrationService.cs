@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text.Json;
+using DeliverySaaS.Application.Auditing;
 using DeliverySaaS.Application.Common.Interfaces;
+using DeliverySaaS.Application.Notifications;
 using DeliverySaaS.Domain.Integration.Entities;
 
 namespace DeliverySaaS.Application.Integration;
@@ -9,6 +11,8 @@ public class IntegrationService : IIntegrationService
 {
     private readonly IIntegrationRepository _integrationRepository;
     private readonly IRequestContext _requestContext;
+    private readonly INotificationService? _notificationService;
+    private readonly IAuditLogService? _auditLogService;
     private readonly IHmacSignatureService _hmacSignatureService;
     private readonly IReplayProtectionService _replayProtectionService;
     private readonly IReferenceDataCacheService _referenceDataCacheService;
@@ -24,6 +28,8 @@ public class IntegrationService : IIntegrationService
         _requestContext = requestContext;
         _hmacSignatureService = hmacSignatureService;
         _replayProtectionService = replayProtectionService;
+        _notificationService = notificationService;
+        _auditLogService = auditLogService;
         _referenceDataCacheService = referenceDataCacheService;
     }
 
@@ -158,6 +164,14 @@ public class IntegrationService : IIntegrationService
             catch (Exception ex)
             {
                 msg.Error = ex.Message;
+                if (_notificationService != null)
+                {
+                    await _notificationService.CreateAsync(null, "CompanyAdmin", "فشل تكامل", "فشل إرسال رسالة تكامل صادرة", Domain.Notifications.Enums.NotificationType.Integration, "Handoff", msg.Id, cancellationToken);
+                }
+                if (_auditLogService != null)
+                {
+                    await _auditLogService.WriteAsync("INTEGRATION_OUTBOUND_FAILED", "OutboxMessage", msg.Id.ToString(), "فشل إرسال تكامل", "{}", cancellationToken: cancellationToken);
+                }
             }
         }
 
