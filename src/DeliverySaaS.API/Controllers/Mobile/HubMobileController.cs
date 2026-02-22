@@ -22,21 +22,21 @@ public class HubMobileController : ControllerBase
     [HttpPost("receive-from-pickup")]
     public async Task<IActionResult> ReceiveFromPickup([FromBody] HubTransitionRequest request, CancellationToken cancellationToken)
     {
-        await _orderService.TransitionAsync(request.OrderId, OperationalState.InSortingHub, cancellationToken);
+        await _orderService.TransitionAsync(request.OrderId, OperationalState.InSortingHub, false, cancellationToken);
         return Ok(new { message = "Received from pickup." });
     }
 
     [HttpPost("handover-to-delivery")]
     public async Task<IActionResult> HandoverToDelivery([FromBody] HubTransitionRequest request, CancellationToken cancellationToken)
     {
-        await _orderService.TransitionAsync(request.OrderId, OperationalState.InDeliveryAgent, cancellationToken);
+        await _orderService.TransitionAsync(request.OrderId, OperationalState.InDeliveryAgent, false, cancellationToken);
         return Ok(new { message = "Handed over to delivery." });
     }
 
     [HttpPost("receive-returns")]
     public async Task<IActionResult> ReceiveReturns([FromBody] HubTransitionRequest request, CancellationToken cancellationToken)
     {
-        await _orderService.TransitionAsync(request.OrderId, OperationalState.ReturnSortingHub, cancellationToken);
+        await _orderService.TransitionAsync(request.OrderId, OperationalState.ReturnSortingHub, false, cancellationToken);
         return Ok(new { message = "Returns received at hub." });
     }
 }

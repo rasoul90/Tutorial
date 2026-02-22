@@ -31,7 +31,7 @@ public class PickupMobileController : ControllerBase
     [HttpPost("qr-scan-transition")]
     public async Task<IActionResult> QrScanTransition([FromBody] PickupQrTransitionRequest request, CancellationToken cancellationToken)
     {
-        await _orderService.TransitionAsync(request.OrderId, request.ToState, cancellationToken);
+        await _orderService.TransitionAsync(request.OrderId, request.ToState, false, cancellationToken);
         return Ok(new { message = "Transition completed." });
     }
 }

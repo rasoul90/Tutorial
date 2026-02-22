@@ -42,7 +42,6 @@ builder.Services
     .AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow;
     });
 
 builder.Services.AddFluentValidationAutoValidation();
@@ -131,7 +130,7 @@ builder.Services.AddAuthorization(options =>
         p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.MerchantPaymentsManage)));
 
     options.AddPolicy("BranchScope", p => p.RequireAssertion(ctx =>
-        ctx.User.HasClaim("branch_id", _ => true) &&
+        ctx.User.HasClaim(c => c.Type == "branch_id") &&
         !ctx.User.IsInRole("CompanyAdmin") &&
         !ctx.User.IsInRole("SaaSAdmin")));
 
