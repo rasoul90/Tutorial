@@ -22,7 +22,9 @@ public class IntegrationService : IIntegrationService
         IRequestContext requestContext,
         IHmacSignatureService hmacSignatureService,
         IReplayProtectionService replayProtectionService,
-        IReferenceDataCacheService referenceDataCacheService)
+        IReferenceDataCacheService referenceDataCacheService,
+        INotificationService? notificationService = null,
+        IAuditLogService? auditLogService = null)
     {
         _integrationRepository = integrationRepository;
         _requestContext = requestContext;
