@@ -46,7 +46,7 @@ public class LabelService : ILabelService
                         });
 
                         column.Item().AlignCenter().Text("QR").Bold();
-                        column.Item().AlignCenter().QrCode(label.Qr);
+                        column.Item().AlignCenter().Border(1).Padding(6).Text(label.Qr).FontSize(9);
                     });
                 });
             }
