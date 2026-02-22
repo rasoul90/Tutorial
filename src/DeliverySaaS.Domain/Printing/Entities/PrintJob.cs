@@ -7,4 +7,5 @@ public class PrintJob : BaseBranchEntity
     public string JobType { get; set; } = string.Empty;
     public string Status { get; set; } = "Queued";
     public DateTime RequestedAt { get; set; }
+    public string? FileName { get; set; }
 }

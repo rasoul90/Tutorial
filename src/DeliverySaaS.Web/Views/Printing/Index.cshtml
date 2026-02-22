@@ -1,0 +1,84 @@
+@model DeliverySaaS.Web.Models.BranchPrintSettingsViewModel
+@{
+    ViewData["Title"] = "إدارة الطباعة";
+}
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="mb-3">إعدادات طباعة الفرع</h5>
+
+                @if (TempData["Success"] is string s)
+                {
+                    <div class="alert alert-success">@s</div>
+                }
+                @if (TempData["Error"] is string e)
+                {
+                    <div class="alert alert-danger">@e</div>
+                }
+
+                <form asp-action="SaveSettings" method="post" class="row g-3">
+                    @Html.AntiForgeryToken()
+
+                    <div class="col-12">
+                        <label asp-for="PrinterName" class="form-label"></label>
+                        <input asp-for="PrinterName" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Copies" class="form-label"></label>
+                        <input asp-for="Copies" class="form-control" type="number" min="1" max="20" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="PaperSize" class="form-label"></label>
+                        <select asp-for="PaperSize" class="form-select">
+                            <option value="A4">A4</option>
+                            <option value="A5">A5</option>
+                            <option value="Thermal80mm">Thermal 80mm</option>
+                            <option value="Thermal58mm">Thermal 58mm</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="BarcodeType" class="form-label"></label>
+                        <select asp-for="BarcodeType" class="form-select">
+                            <option value="Barcode">Barcode</option>
+                            <option value="Qr">QR</option>
+                            <option value="Both">Barcode + QR</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 form-check mt-2 me-2">
+                        <input asp-for="AutoPrint" class="form-check-input" />
+                        <label asp-for="AutoPrint" class="form-check-label"></label>
+                    </div>
+
+                    <div class="col-12 d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary">حفظ الإعدادات</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="mb-3">معاينة PDF</h5>
+                <p class="text-muted small">سيتم توليد ليبل يحتوي: Barcode/QR + Logo + Phones + ItemType + Size + Customer + MerchantPhone + CustomerPhone + PriceWithDelivery.</p>
+
+                <form asp-action="Preview" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="PrinterName" />
+                    <input type="hidden" asp-for="Copies" />
+                    <input type="hidden" asp-for="PaperSize" />
+                    <input type="hidden" asp-for="BarcodeType" />
+                    <input type="hidden" asp-for="AutoPrint" />
+                    <button type="submit" class="btn btn-outline-success w-100">Generate PDF Preview</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

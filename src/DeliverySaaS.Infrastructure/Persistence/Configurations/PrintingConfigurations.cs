@@ -12,6 +12,9 @@ public class BranchPrintSettingConfiguration : IEntityTypeConfiguration<BranchPr
         builder.HasKey(x => x.Id);
         builder.Property(x => x.PrinterName).HasMaxLength(200).IsRequired();
         builder.Property(x => x.PaperSize).HasMaxLength(20).IsRequired();
+        builder.Property(x => x.BarcodeType).HasMaxLength(20).IsRequired();
+        builder.Property(x => x.Copies).IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.BranchId }).IsUnique();
     }
 }
 
@@ -23,6 +26,7 @@ public class PrintJobConfiguration : IEntityTypeConfiguration<PrintJob>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.JobType).HasMaxLength(60).IsRequired();
         builder.Property(x => x.Status).HasMaxLength(40).IsRequired();
+        builder.Property(x => x.FileName).HasMaxLength(200);
     }
 }
 
@@ -33,6 +37,7 @@ public class PrintJobItemConfiguration : IEntityTypeConfiguration<PrintJobItem>
         builder.ToTable("PrintJobItems");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.ReferenceType).HasMaxLength(60).IsRequired();
+        builder.Property(x => x.PayloadJson).HasMaxLength(2000);
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.PrintJobId });
     }
 }

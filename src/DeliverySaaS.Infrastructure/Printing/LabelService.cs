@@ -14,41 +14,62 @@ public class LabelService : ILabelService
 
     public byte[] GenerateLabelsPdf(GenerateLabelsRequest request)
     {
+        var copies = Math.Max(1, request.Copies);
+
         var document = Document.Create(container =>
         {
             foreach (var label in request.Labels)
             {
-                container.Page(page =>
+                for (var i = 0; i < copies; i++)
                 {
-                    ConfigurePageSize(page, request.PaperSize);
-                    page.Margin(10);
-
-                    page.Content().Column(column =>
+                    container.Page(page =>
                     {
-                        column.Spacing(8);
+                        ConfigurePageSize(page, request.PaperSize);
+                        page.Margin(8);
+                        page.DefaultTextStyle(x => x.FontSize(10));
 
-                        if (!string.IsNullOrWhiteSpace(label.CompanyLogoBase64))
+                        page.Content().Column(column =>
                         {
-                            var logoBytes = Convert.FromBase64String(label.CompanyLogoBase64);
-                            column.Item().AlignCenter().Height(40).Image(logoBytes);
-                        }
+                            column.Spacing(6);
 
-                        column.Item().AlignCenter().Text($"Company Phones: {label.CompanyPhones}").FontSize(10).SemiBold();
+                            if (!string.IsNullOrWhiteSpace(label.CompanyLogoBase64))
+                            {
+                                try
+                                {
+                                    var logoBytes = Convert.FromBase64String(label.CompanyLogoBase64);
+                                    column.Item().AlignCenter().Height(35).Image(logoBytes, ImageScaling.FitHeight);
+                                }
+                                catch
+                                {
+                                    column.Item().AlignCenter().Text("Logo").SemiBold();
+                                }
+                            }
 
-                        column.Item().Border(1).Padding(6).Column(info =>
-                        {
-                            info.Spacing(4);
-                            info.Item().Text($"Customer Info: {label.CustomerInfo}");
-                            info.Item().Text($"Merchant Phone: {label.MerchantPhone}");
-                            info.Item().Text($"Order Size: {label.OrderSize}");
-                            info.Item().Text($"Item Type: {label.ItemType}");
-                            info.Item().Text($"Price: {label.Price:0.00}");
+                            column.Item().AlignCenter().Text($"Phones: {label.CompanyPhones}").SemiBold();
+
+                            column.Item().Border(1).Padding(5).Column(info =>
+                            {
+                                info.Spacing(2);
+                                info.Item().Text($"Item Type: {label.ItemType}");
+                                info.Item().Text($"Size: {label.OrderSize}");
+                                info.Item().Text($"Customer: {label.Customer}");
+                                info.Item().Text($"Merchant Phone: {label.MerchantPhone}");
+                                info.Item().Text($"Customer Phone: {label.CustomerPhone}");
+                                info.Item().Text($"Price With Delivery: {label.PriceWithDelivery:0.00}").Bold();
+                            });
+
+                            if (request.BarcodeType is BarcodeType.Barcode or BarcodeType.Both)
+                            {
+                                column.Item().Border(1).Padding(4).AlignCenter().Text($"Barcode: {label.Barcode}").FontSize(9);
+                            }
+
+                            if (request.BarcodeType is BarcodeType.Qr or BarcodeType.Both)
+                            {
+                                column.Item().Border(1).Padding(4).AlignCenter().Text($"QR: {label.Qr}").FontSize(9);
+                            }
                         });
-
-                        column.Item().AlignCenter().Text("QR").Bold();
-                        column.Item().AlignCenter().Border(1).Padding(6).Text(label.Qr).FontSize(9);
                     });
-                });
+                }
             }
         });
 
