@@ -11,6 +11,7 @@ using DeliverySaaS.Application.Accounting;
 using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Application.Integration;
 using DeliverySaaS.Application.Orders;
+using DeliverySaaS.Application.Payments;
 using DeliverySaaS.Domain.Identity.Enums;
 using DeliverySaaS.Infrastructure.DependencyInjection;
 using DeliverySaaS.Infrastructure.Persistence;
@@ -73,6 +74,7 @@ builder.Services.AddScoped<IOrderProblemService, OrderProblemService>();
 builder.Services.AddScoped<IOrderMobileService, OrderMobileService>();
 builder.Services.AddScoped<IAccountingService, AccountingService>();
 builder.Services.AddScoped<IIntegrationService, IntegrationService>();
+builder.Services.AddScoped<IMerchantPaymentsService, MerchantPaymentsService>();
 builder.Services.AddSingleton<IClaimsTransformation, RolePermissionClaimsTransformation>();
 
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -117,6 +119,9 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy(AuthorizationPolicies.CanViewCompanyReports,
         p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.TenantReportsView)));
+
+    options.AddPolicy(AuthorizationPolicies.CanManageMerchantPayments,
+        p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.MerchantPaymentsManage)));
 
     options.AddPolicy("BranchScope", p => p.RequireAssertion(ctx =>
         ctx.User.HasClaim("branch_id", _ => true) &&

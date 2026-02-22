@@ -53,3 +53,51 @@ public record DeliveryAgentStatementSummaryDto(
     decimal TotalPendingSettlementAmount);
 
 public record StatementResultDto<TSummary, TRow>(TSummary Summary, IReadOnlyList<TRow> Rows);
+
+public record MerchantPaymentRowDto(
+    DateTime Date,
+    decimal Amount,
+    string Method,
+    string? ReferenceNo,
+    string? Notes);
+
+public record MerchantLedgerRowDto(
+    DateTime Date,
+    string Type,
+    string Description,
+    decimal Debit,
+    decimal Credit,
+    decimal Balance);
+
+public record MerchantLedgerSummaryDto(
+    decimal TotalDebit,
+    decimal TotalCredit,
+    decimal ClosingBalance);
+
+public record MerchantLedgerResultDto(
+    decimal OpeningBalance,
+    IReadOnlyList<MerchantLedgerRowDto> Rows,
+    MerchantLedgerSummaryDto Summary);
+
+public record ProfitBreakdownRowDto(
+    string Governorate,
+    string Size,
+    string PricingCategory,
+    int OrdersCount,
+    decimal TotalDeliveryFee,
+    decimal TotalAgentFees,
+    decimal TotalCompanyNetProfit);
+
+public record DeliveryAgentPerformanceRowDto(
+    string AgentName,
+    int DeliveredCount,
+    int ReturnCount,
+    int ProblemCount,
+    decimal TotalAgentFees,
+    decimal TotalCompanyNetProfit,
+    int PendingSettlementCount);
+
+public record MerchantStatementWithPaymentsDto(
+    MerchantStatementSummaryDto Summary,
+    IReadOnlyList<MerchantStatementRowDto> Orders,
+    IReadOnlyList<MerchantPaymentRowDto> Payments);

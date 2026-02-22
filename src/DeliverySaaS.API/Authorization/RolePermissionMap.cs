@@ -9,7 +9,7 @@ public static class RolePermissionMap
         {
             ["Courier"] = [Permission.OrdersView, Permission.OrdersTransition],
             ["Dispatcher"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage, Permission.BranchReportsView],
-            ["CompanyAdmin"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage, Permission.BranchManage, Permission.TenantManage, Permission.FinReportsView, Permission.BranchReportsView, Permission.TenantReportsView],
-            ["SaaSAdmin"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage, Permission.BranchManage, Permission.TenantManage, Permission.SaaSManage, Permission.FinReportsView, Permission.BranchReportsView, Permission.TenantReportsView]
+            ["CompanyAdmin"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage, Permission.BranchManage, Permission.TenantManage, Permission.FinReportsView, Permission.BranchReportsView, Permission.TenantReportsView, Permission.MerchantPaymentsManage],
+            ["SaaSAdmin"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage, Permission.BranchManage, Permission.TenantManage, Permission.SaaSManage, Permission.FinReportsView, Permission.BranchReportsView, Permission.TenantReportsView, Permission.MerchantPaymentsManage]
         };
 }

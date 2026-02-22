@@ -27,6 +27,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IAccountingRepository, AccountingRepository>();
         services.AddScoped<IIntegrationRepository, IntegrationRepository>();
+        services.AddScoped<IMerchantPaymentsRepository, MerchantPaymentsRepository>();
         services.AddSingleton<IHmacSignatureService, HmacSignatureService>();
         services.AddSingleton<IReplayProtectionService, ReplayProtectionService>();
         services.AddScoped<IReferenceDataCacheService, ReferenceDataCacheService>();
@@ -34,6 +35,8 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IFinancialReportsQueryService, FinancialReportsQueryService>();
         services.AddScoped<IMerchantStatementsQueryService, MerchantStatementsQueryService>();
         services.AddScoped<IDeliveryAgentStatementsQueryService, DeliveryAgentStatementsQueryService>();
+        services.AddScoped<IMerchantLedgerQueryService, MerchantLedgerQueryService>();
+        services.AddScoped<IProfitReportsQueryService, ProfitReportsQueryService>();
 
         return services;
     }

@@ -72,3 +72,30 @@ public class AuditEntryConfiguration : IEntityTypeConfiguration<AuditEntry>
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.EntityName, x.EntityId });
     }
 }
+
+
+public class MerchantPaymentConfiguration : IEntityTypeConfiguration<MerchantPayment>
+{
+    public void Configure(EntityTypeBuilder<MerchantPayment> builder)
+    {
+        builder.ToTable("MerchantPayments");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Amount).HasColumnType("decimal(18,2)");
+        builder.Property(x => x.ReferenceNo).HasMaxLength(120);
+        builder.Property(x => x.Notes).HasMaxLength(500);
+        builder.Property(x => x.Method).HasConversion<int>().IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.MerchantId, x.PaymentDate });
+    }
+}
+
+public class MerchantPaymentAllocationConfiguration : IEntityTypeConfiguration<MerchantPaymentAllocation>
+{
+    public void Configure(EntityTypeBuilder<MerchantPaymentAllocation> builder)
+    {
+        builder.ToTable("MerchantPaymentAllocations");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.AllocatedAmount).HasColumnType("decimal(18,2)");
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.OrderId });
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.MerchantPaymentId });
+    }
+}

@@ -94,6 +94,9 @@ public class OrderService : IOrderService
         order.DeliveryAgentFeeApplied = agentFee;
         order.MerchantDueAmount = merchantDue;
         order.CompanyNetDeliveryProfit = companyProfit;
+        order.MerchantPaidAmount = 0m;
+        order.MerchantRemainingAmount = merchantDue;
+        order.MerchantSettlementStatus = MerchantSettlementStatus.NotReady;
 
         if (deliveredWithReturn)
         {

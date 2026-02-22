@@ -116,6 +116,7 @@ public class AccountingService : IAccountingService
         {
             order.IsDeliveryAgentSettled = true;
             order.DeliveryAgentSettledAt = DateTime.UtcNow;
+            order.MerchantSettlementStatus = order.MerchantRemainingAmount > 0 ? (order.MerchantPaidAmount > 0 ? MerchantSettlementStatus.PartiallyPaid : MerchantSettlementStatus.Ready) : MerchantSettlementStatus.Paid;
 
             await _orderRepository.AddOrderEventAsync(new Domain.Operations.Entities.OrderEvent
             {

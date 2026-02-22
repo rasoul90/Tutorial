@@ -9,6 +9,7 @@ public static class AuthorizationPolicies
     public const string CanManageOrderProblems = nameof(CanManageOrderProblems);
     public const string CanViewFinancialReports = nameof(CanViewFinancialReports);
     public const string CanViewCompanyReports = nameof(CanViewCompanyReports);
+    public const string CanManageMerchantPayments = nameof(CanManageMerchantPayments);
 
     public static string PermissionValue(Permission permission) => permission.ToString();
 }

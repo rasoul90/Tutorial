@@ -32,4 +32,7 @@ public class Order : BaseBranchEntity
     public DateTime? MerchantSettledAt { get; set; }
     public bool HasReturn { get; set; }
     public DateTime? ReturnInitiatedAt { get; set; }
+    public decimal MerchantPaidAmount { get; set; }
+    public decimal MerchantRemainingAmount { get; set; }
+    public MerchantSettlementStatus MerchantSettlementStatus { get; set; } = MerchantSettlementStatus.NotReady;
 }

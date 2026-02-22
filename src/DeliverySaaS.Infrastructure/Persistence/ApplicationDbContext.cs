@@ -42,6 +42,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<PricingRate> PricingRates => Set<PricingRate>();
     public DbSet<MerchantSettlementRequest> MerchantSettlementRequests => Set<MerchantSettlementRequest>();
     public DbSet<MerchantInvoice> MerchantInvoices => Set<MerchantInvoice>();
+    public DbSet<MerchantPayment> MerchantPayments => Set<MerchantPayment>();
+    public DbSet<MerchantPaymentAllocation> MerchantPaymentAllocations => Set<MerchantPaymentAllocation>();
     public DbSet<DeliveryReconciliation> DeliveryReconciliations => Set<DeliveryReconciliation>();
     public DbSet<Payroll> Payroll => Set<Payroll>();
     public DbSet<Expense> Expenses => Set<Expense>();

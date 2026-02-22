@@ -79,6 +79,14 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.CompanyNetDeliveryProfit).HasColumnType("decimal(18,2)");
         builder.Property(x => x.MerchantDueAmount).HasColumnType("decimal(18,2)");
 
+        builder.Property(x => x.MerchantPaidAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0m).IsRequired();
+        builder.Property(x => x.MerchantRemainingAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0m).IsRequired();
+        builder.Property(x => x.MerchantSettlementStatus)
+            .HasConversion<string>()
+            .HasMaxLength(30)
+            .HasDefaultValue(MerchantSettlementStatus.NotReady)
+            .IsRequired();
+
         builder.Property(x => x.IsDeliveryAgentSettled).HasDefaultValue(false).IsRequired();
         builder.Property(x => x.IsMerchantSettled).HasDefaultValue(false).IsRequired();
         builder.Property(x => x.HasReturn).HasDefaultValue(false).IsRequired();
@@ -89,6 +97,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.DeliveredAt });
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.IsDeliveryAgentSettled, x.IsMerchantSettled });
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.HasReturn, x.State });
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.MerchantId, x.IsDeliveryAgentSettled, x.IsMerchantSettled });
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.OrderNumber }).IsUnique();
     }
 }

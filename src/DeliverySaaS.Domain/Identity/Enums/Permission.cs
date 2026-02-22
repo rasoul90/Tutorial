@@ -10,5 +10,6 @@ public enum Permission
     SaaSManage = 6,
     FinReportsView = 7,
     BranchReportsView = 8,
-    TenantReportsView = 9
+    TenantReportsView = 9,
+    MerchantPaymentsManage = 10
 }

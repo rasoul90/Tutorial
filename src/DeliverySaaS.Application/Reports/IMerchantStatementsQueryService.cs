@@ -2,7 +2,7 @@ namespace DeliverySaaS.Application.Reports;
 
 public interface IMerchantStatementsQueryService
 {
-    Task<StatementResultDto<MerchantStatementSummaryDto, MerchantStatementRowDto>> GetStatementAsync(
+    Task<MerchantStatementWithPaymentsDto> GetStatementAsync(
         Guid merchantId,
         DateTime from,
         DateTime to,
