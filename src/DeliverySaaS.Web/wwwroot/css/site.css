@@ -1,0 +1,8 @@
+html, body {
+  font-family: "Tajawal", sans-serif;
+  background: #f8f9fa;
+}
+
+.card {
+  border-radius: 0.75rem;
+}
