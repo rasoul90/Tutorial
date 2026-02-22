@@ -18,23 +18,40 @@ public class ProfitReportsQueryService : IProfitReportsQueryService
 
     public async Task<IReadOnlyList<ProfitBreakdownRowDto>> GetProfitBreakdownAsync(DateTime from, DateTime to, string groupBy, CancellationToken cancellationToken = default)
     {
-        var rows = await (
-            from o in ScopedOrders().AsNoTracking()
-            where o.DeliveredAt != null && o.DeliveredAt >= from && o.DeliveredAt <= to
-            join g in _dbContext.Governorates.AsNoTracking() on o.GovernorateId equals g.Id into gg
-            from gov in gg.DefaultIfEmpty()
-            join pc in _dbContext.PricingCategories.AsNoTracking() on o.PricingCategoryId equals pc.Id into pp
-            from pricing in pp.DefaultIfEmpty()
-            select new
+        var scopedOrders = ScopedOrders().AsNoTracking()
+            .Where(o => o.DeliveredAt != null)
+            .Where(o => o.DeliveredAt >= from)
+            .Where(o => o.DeliveredAt <= to);
+
+        var rows = await scopedOrders
+            .Select(o => new
             {
-                Governorate = gov != null ? gov.Name : "-",
-                Size = o.OrderSize.HasValue ? o.OrderSize.Value.ToString() : "-",
-                PricingCategory = pricing != null ? pricing.Name : "-",
+                o.GovernorateId,
+                o.PricingCategoryId,
+                o.OrderSize,
                 DeliveryFee = o.DeliveryFeeApplied ?? 0m,
                 AgentFee = o.DeliveryAgentFeeApplied ?? 0m,
                 Profit = o.CompanyNetDeliveryProfit ?? 0m
             })
             .ToListAsync(cancellationToken);
+
+        var governorates = await _dbContext.Governorates.AsNoTracking()
+            .Select(g => new { g.Id, g.Name })
+            .ToDictionaryAsync(x => x.Id, x => x.Name, cancellationToken);
+
+        var pricingCategories = await _dbContext.PricingCategories.AsNoTracking()
+            .Select(p => new { p.Id, p.Name })
+            .ToDictionaryAsync(x => x.Id, x => x.Name, cancellationToken);
+
+        var enriched = rows.Select(r => new
+        {
+            Governorate = r.GovernorateId.HasValue && governorates.TryGetValue(r.GovernorateId.Value, out var govName) ? govName : "-",
+            Size = r.OrderSize.HasValue ? r.OrderSize.Value.ToString() : "-",
+            PricingCategory = r.PricingCategoryId.HasValue && pricingCategories.TryGetValue(r.PricingCategoryId.Value, out var catName) ? catName : "-",
+            r.DeliveryFee,
+            r.AgentFee,
+            r.Profit
+        }).ToList();
 
         string BuildGroupKey(dynamic r) => groupBy switch
         {
@@ -46,7 +63,7 @@ public class ProfitReportsQueryService : IProfitReportsQueryService
             _ => r.Governorate
         };
 
-        return rows
+        return enriched
             .GroupBy(BuildGroupKey)
             .Select(g =>
             {
@@ -71,21 +88,28 @@ public class ProfitReportsQueryService : IProfitReportsQueryService
 
     public async Task<IReadOnlyList<DeliveryAgentPerformanceRowDto>> GetDeliveryAgentPerformanceAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default)
     {
-        return await (
-            from o in ScopedOrders().AsNoTracking()
-            where o.DeliveredAt != null && o.DeliveredAt >= from && o.DeliveredAt <= to && o.DeliveryAgentId != null
-            join d in _dbContext.DeliveryAgents.AsNoTracking() on o.DeliveryAgentId equals d.Id
-            group o by new { d.Id, d.Name } into g
-            select new DeliveryAgentPerformanceRowDto(
-                g.Key.Name,
+        var rows = await ScopedOrders().AsNoTracking()
+            .Where(o => o.DeliveredAt != null)
+            .Where(o => o.DeliveredAt >= from)
+            .Where(o => o.DeliveredAt <= to)
+            .Where(o => o.DeliveryAgentId != null)
+            .Join(_dbContext.DeliveryAgents.AsNoTracking(),
+                o => o.DeliveryAgentId,
+                d => d.Id,
+                (o, d) => new { Order = o, AgentName = d.Name })
+            .GroupBy(x => x.AgentName)
+            .Select(g => new DeliveryAgentPerformanceRowDto(
+                g.Key,
                 g.Count(),
-                g.Count(x => x.HasReturn),
-                g.Count(x => x.HasProblem),
-                g.Sum(x => x.DeliveryAgentFeeApplied ?? 0m),
-                g.Sum(x => x.CompanyNetDeliveryProfit ?? 0m),
-                g.Count(x => !x.IsDeliveryAgentSettled)))
+                g.Count(x => x.Order.HasReturn),
+                g.Count(x => x.Order.HasProblem),
+                g.Sum(x => x.Order.DeliveryAgentFeeApplied ?? 0m),
+                g.Sum(x => x.Order.CompanyNetDeliveryProfit ?? 0m),
+                g.Count(x => !x.Order.IsDeliveryAgentSettled)))
             .OrderByDescending(x => x.DeliveredCount)
             .ToListAsync(cancellationToken);
+
+        return rows;
     }
 
     private IQueryable<Domain.Operations.Entities.Order> ScopedOrders()
