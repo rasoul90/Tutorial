@@ -1,5 +1,3 @@
-using DeliverySaaS.Domain.Identity.Enums;
-
 namespace DeliverySaaS.API.Authorization;
 
 public static class AuthorizationPolicies
@@ -11,5 +9,10 @@ public static class AuthorizationPolicies
     public const string CanViewCompanyReports = nameof(CanViewCompanyReports);
     public const string CanManageMerchantPayments = nameof(CanManageMerchantPayments);
 
-    public static string PermissionValue(Permission permission) => permission.ToString();
+    public const string OrdersViewPermission = "ORDER.VIEW";
+    public const string OrdersTransitionPermission = "ORDER.TRANSITION";
+    public const string OrderProblemsManagePermission = "ORDER_PROBLEM.MANAGE";
+    public const string FinReportsViewPermission = "REPORT.BRANCH.VIEW";
+    public const string TenantReportsViewPermission = "REPORT.COMPANY.VIEW";
+    public const string MerchantPaymentsManagePermission = "PAYMENT.MANAGE";
 }

@@ -24,7 +24,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.ToTable("Roles");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Name).HasMaxLength(100).IsRequired();
-        builder.HasIndex(x => new { x.TenantId, x.Name }).IsUnique();
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.Name }).IsUnique();
     }
 }
 
@@ -36,7 +36,7 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Name).HasMaxLength(120).IsRequired();
         builder.Property(x => x.Key).HasMaxLength(120).IsRequired();
-        builder.HasIndex(x => new { x.TenantId, x.Key }).IsUnique();
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.Key }).IsUnique();
     }
 }
 
@@ -46,7 +46,7 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
     {
         builder.ToTable("UserRoles");
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => new { x.TenantId, x.UserId, x.RoleId }).IsUnique();
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.UserId, x.RoleId }).IsUnique();
     }
 }
 
@@ -56,6 +56,17 @@ public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermissi
     {
         builder.ToTable("RolePermissions");
         builder.HasKey(x => x.Id);
-        builder.HasIndex(x => new { x.TenantId, x.RoleId, x.PermissionId }).IsUnique();
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.RoleId, x.PermissionId }).IsUnique();
+    }
+}
+
+public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
+{
+    public void Configure(EntityTypeBuilder<RefreshToken> builder)
+    {
+        builder.ToTable("RefreshTokens");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.TokenHash).HasMaxLength(512).IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.TokenHash }).IsUnique();
     }
 }

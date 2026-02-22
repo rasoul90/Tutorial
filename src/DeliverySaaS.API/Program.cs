@@ -15,9 +15,11 @@ using DeliverySaaS.Application.Payments;
 using DeliverySaaS.Application.Notifications;
 using DeliverySaaS.Application.Auditing;
 using DeliverySaaS.Application.Archiving;
-using DeliverySaaS.Domain.Identity.Enums;
 using DeliverySaaS.Infrastructure.DependencyInjection;
 using DeliverySaaS.Infrastructure.Persistence;
+using DeliverySaaS.Infrastructure.Persistence.Seed;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi.Models;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
@@ -48,7 +50,29 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<CreateSettlementRequestValidator>();
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT Bearer token"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 builder.Services.AddHealthChecks();
 
 builder.Services.AddRateLimiter(options =>
@@ -82,6 +106,8 @@ builder.Services.AddScoped<INotificationSender, NoOpNotificationSender>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IArchiveService, ArchiveService>();
 builder.Services.AddSingleton<IClaimsTransformation, RolePermissionClaimsTransformation>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -110,24 +136,24 @@ builder.Services
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(AuthorizationPolicies.CanViewOrders,
-        p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.OrdersView)));
+        p => p.RequireClaim("permission", AuthorizationPolicies.OrdersViewPermission));
 
     options.AddPolicy(AuthorizationPolicies.CanTransitionOrders,
-        p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.OrdersTransition)));
+        p => p.RequireClaim("permission", AuthorizationPolicies.OrdersTransitionPermission));
 
     options.AddPolicy(AuthorizationPolicies.CanManageOrderProblems,
-        p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.OrderProblemsManage)));
+        p => p.RequireClaim("permission", AuthorizationPolicies.OrderProblemsManagePermission));
 
     options.AddPolicy(AuthorizationPolicies.CanViewFinancialReports,
         p => p.RequireAssertion(ctx =>
-            ctx.User.HasClaim("permission", AuthorizationPolicies.PermissionValue(Permission.FinReportsView)) ||
-            ctx.User.HasClaim("permission", AuthorizationPolicies.PermissionValue(Permission.BranchReportsView))));
+            ctx.User.HasClaim("permission", AuthorizationPolicies.FinReportsViewPermission) ||
+            ctx.User.HasClaim("permission", AuthorizationPolicies.TenantReportsViewPermission)));
 
     options.AddPolicy(AuthorizationPolicies.CanViewCompanyReports,
-        p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.TenantReportsView)));
+        p => p.RequireClaim("permission", AuthorizationPolicies.TenantReportsViewPermission));
 
     options.AddPolicy(AuthorizationPolicies.CanManageMerchantPayments,
-        p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.MerchantPaymentsManage)));
+        p => p.RequireClaim("permission", AuthorizationPolicies.MerchantPaymentsManagePermission));
 
     options.AddPolicy("BranchScope", p => p.RequireAssertion(ctx =>
         ctx.User.HasClaim(c => c.Type == "branch_id") &&
@@ -151,6 +177,9 @@ using (var scope = app.Services.CreateScope())
         try
         {
             dbContext.Database.Migrate();
+            var requestContext = scope.ServiceProvider.GetRequiredService<RequestContext>();
+            var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+            await IdentitySeedData.SeedAsync(dbContext, requestContext, passwordHasher);
             break;
         }
         catch (Exception ex) when (retries > 0)

@@ -40,6 +40,13 @@ public class TenantBranchExtractionMiddleware
             {
                 requestContext.BranchId = branchId;
             }
+
+            if (!requestContext.IsCompanyAdmin && !requestContext.IsSaasAdmin && !requestContext.BranchId.HasValue)
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await context.Response.WriteAsync("branch_id is required for branch scoped roles.");
+                return;
+            }
         }
 
         await _next(context);

@@ -36,6 +36,8 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IMerchantPaymentsRepository, MerchantPaymentsRepository>();
         services.AddSingleton<IHmacSignatureService, HmacSignatureService>();
         services.AddSingleton<IReplayProtectionService, ReplayProtectionService>();
+        services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IReferenceDataCacheService, ReferenceDataCacheService>();
         services.AddScoped<ILabelService, LabelService>();
         services.AddScoped<IFinancialReportsQueryService, FinancialReportsQueryService>();

@@ -4,6 +4,7 @@ namespace DeliverySaaS.Domain.Identity.Entities;
 
 public class RolePermission : BaseEntity
 {
+    public Guid? BranchId { get; set; }
     public Guid RoleId { get; set; }
     public Guid PermissionId { get; set; }
 }

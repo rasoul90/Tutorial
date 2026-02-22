@@ -4,6 +4,7 @@ namespace DeliverySaaS.Domain.Identity.Entities;
 
 public class Permission : BaseEntity
 {
+    public Guid? BranchId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Key { get; set; } = string.Empty;
 }
