@@ -8,8 +8,8 @@ public static class RolePermissionMap
         new Dictionary<string, Permission[]>(StringComparer.OrdinalIgnoreCase)
         {
             ["Courier"] = [Permission.OrdersView, Permission.OrdersTransition],
-            ["Dispatcher"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage],
-            ["CompanyAdmin"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage, Permission.BranchManage, Permission.TenantManage],
-            ["SaaSAdmin"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage, Permission.BranchManage, Permission.TenantManage, Permission.SaaSManage]
+            ["Dispatcher"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage, Permission.BranchReportsView],
+            ["CompanyAdmin"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage, Permission.BranchManage, Permission.TenantManage, Permission.FinReportsView, Permission.BranchReportsView, Permission.TenantReportsView],
+            ["SaaSAdmin"] = [Permission.OrdersView, Permission.OrdersTransition, Permission.OrderProblemsManage, Permission.BranchManage, Permission.TenantManage, Permission.SaaSManage, Permission.FinReportsView, Permission.BranchReportsView, Permission.TenantReportsView]
         };
 }

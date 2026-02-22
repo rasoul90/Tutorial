@@ -5,6 +5,8 @@ using DeliverySaaS.Infrastructure.Repositories;
 using DeliverySaaS.Infrastructure.Printing;
 using DeliverySaaS.Infrastructure.Security;
 using DeliverySaaS.Infrastructure.Caching;
+using DeliverySaaS.Application.Reports;
+using DeliverySaaS.Infrastructure.QueryServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +31,9 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<IReplayProtectionService, ReplayProtectionService>();
         services.AddScoped<IReferenceDataCacheService, ReferenceDataCacheService>();
         services.AddScoped<ILabelService, LabelService>();
+        services.AddScoped<IFinancialReportsQueryService, FinancialReportsQueryService>();
+        services.AddScoped<IMerchantStatementsQueryService, MerchantStatementsQueryService>();
+        services.AddScoped<IDeliveryAgentStatementsQueryService, DeliveryAgentStatementsQueryService>();
 
         return services;
     }

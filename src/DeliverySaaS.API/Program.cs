@@ -110,6 +110,14 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(AuthorizationPolicies.CanManageOrderProblems,
         p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.OrderProblemsManage)));
 
+    options.AddPolicy(AuthorizationPolicies.CanViewFinancialReports,
+        p => p.RequireAssertion(ctx =>
+            ctx.User.HasClaim("permission", AuthorizationPolicies.PermissionValue(Permission.FinReportsView)) ||
+            ctx.User.HasClaim("permission", AuthorizationPolicies.PermissionValue(Permission.BranchReportsView))));
+
+    options.AddPolicy(AuthorizationPolicies.CanViewCompanyReports,
+        p => p.RequireClaim("permission", AuthorizationPolicies.PermissionValue(Permission.TenantReportsView)));
+
     options.AddPolicy("BranchScope", p => p.RequireAssertion(ctx =>
         ctx.User.HasClaim("branch_id", _ => true) &&
         !ctx.User.IsInRole("CompanyAdmin") &&

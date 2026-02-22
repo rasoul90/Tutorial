@@ -1,0 +1,30 @@
+@page
+@using System.Globalization
+@{
+    ViewData["Title"] = "التقارير المالية";
+    var iqd = CultureInfo.GetCultureInfo("ar-IQ");
+    string Iqd(decimal value) => string.Format(iqd, "{0:C}", value);
+}
+
+<h2 class="mb-3">التقارير المالية</h2>
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <div class="row g-2">
+            <div class="col-md-3"><label class="form-label">من</label><input class="form-control" type="date" /></div>
+            <div class="col-md-3"><label class="form-label">إلى</label><input class="form-control" type="date" /></div>
+            <div class="col-md-3"><label class="form-label">تاجر (اختياري)</label><input class="form-control" placeholder="معرّف التاجر" /></div>
+            <div class="col-md-3"><label class="form-label">مندوب (اختياري)</label><input class="form-control" placeholder="معرّف المندوب" /></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-3"><div class="card"><div class="card-body"><small>إجمالي الطلبات المسلمة</small><h5>128</h5></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><small>إجمالي قيمة الطلبات</small><h5>@Iqd(1540000m)</h5></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><small>إجمالي مبلغ التوصيل</small><h5>@Iqd(126500m)</h5></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><small>إجمالي أجور المناديب</small><h5>@Iqd(76000m)</h5></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><small>صافي ربح الشركة من التوصيل</small><h5>@Iqd(50500m)</h5></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><small>إجمالي مستحقات التجار</small><h5>@Iqd(1413500m)</h5></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><small>طلبات غير محاسبة مع المناديب</small><h5>22</h5></div></div></div>
+    <div class="col-md-3"><div class="card"><div class="card-body"><small>طلبات جاهزة لتحاسب التجار</small><h5>39</h5></div></div></div>
+</div>
