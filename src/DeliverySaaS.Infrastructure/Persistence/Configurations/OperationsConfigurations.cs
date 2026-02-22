@@ -45,6 +45,7 @@ public class DeliveryAgentConfiguration : IEntityTypeConfiguration<DeliveryAgent
         builder.ToTable("DeliveryAgents");
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Name).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.DeliveryFeePerOrder).HasColumnType("decimal(18,2)");
     }
 }
 
@@ -64,12 +65,30 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasConversion<string>()
             .HasMaxLength(50)
             .IsRequired();
+        builder.Property(x => x.OrderSize)
+            .HasConversion<string>()
+            .HasMaxLength(20);
         builder.Property(x => x.ProblemStatus)
             .HasConversion<string>()
             .HasMaxLength(50)
             .IsRequired();
+
+        builder.Property(x => x.DeliveredPriceWithDelivery).HasColumnType("decimal(18,2)");
+        builder.Property(x => x.DeliveryFeeApplied).HasColumnType("decimal(18,2)");
+        builder.Property(x => x.DeliveryAgentFeeApplied).HasColumnType("decimal(18,2)");
+        builder.Property(x => x.CompanyNetDeliveryProfit).HasColumnType("decimal(18,2)");
+        builder.Property(x => x.MerchantDueAmount).HasColumnType("decimal(18,2)");
+
+        builder.Property(x => x.IsDeliveryAgentSettled).HasDefaultValue(false).IsRequired();
+        builder.Property(x => x.IsMerchantSettled).HasDefaultValue(false).IsRequired();
+        builder.Property(x => x.HasReturn).HasDefaultValue(false).IsRequired();
+
         builder.Property(x => x.HasProblem).IsRequired();
+
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.State });
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.DeliveredAt });
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.IsDeliveryAgentSettled, x.IsMerchantSettled });
+        builder.HasIndex(x => new { x.TenantId, x.BranchId, x.HasReturn, x.State });
         builder.HasIndex(x => new { x.TenantId, x.BranchId, x.OrderNumber }).IsUnique();
     }
 }

@@ -2,6 +2,7 @@ using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Application.Orders;
 using DeliverySaaS.Domain.Operations.Entities;
 using DeliverySaaS.Domain.Operations.Enums;
+using DeliverySaaS.Domain.Pricing.Entities;
 using DeliverySaaS.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -68,6 +69,51 @@ public class OrderRepository : IOrderRepository
     {
         var query = ApplyScope(_dbContext.OrderProblems.AsNoTracking());
         return query.AnyAsync(x => x.OrderId == orderId && x.Status == ProblemStatus.Open, cancellationToken);
+    }
+
+    public Task<Merchant?> GetMerchantByIdAsync(Guid merchantId, CancellationToken cancellationToken = default)
+        => ApplyScope(_dbContext.Merchants.AsNoTracking()).FirstOrDefaultAsync(x => x.Id == merchantId, cancellationToken);
+
+    public Task<DeliveryAgent?> GetDeliveryAgentByIdAsync(Guid deliveryAgentId, CancellationToken cancellationToken = default)
+        => ApplyScope(_dbContext.DeliveryAgents.AsNoTracking()).FirstOrDefaultAsync(x => x.Id == deliveryAgentId, cancellationToken);
+
+    public Task<PricingRate?> GetPricingRateAsync(Guid pricingCategoryId, Guid governorateId, CancellationToken cancellationToken = default)
+        => ApplyScope(_dbContext.PricingRates.AsNoTracking())
+            .Where(x => x.PricingCategoryId == pricingCategoryId && x.GovernorateId == governorateId)
+            .OrderByDescending(x => x.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+
+    public Task<List<Order>> GetOrdersForDeliveryAgentSettlementAsync(Guid deliveryAgentId, CancellationToken cancellationToken = default)
+        => ApplyScope(_dbContext.Orders.AsQueryable())
+            .Where(x => x.DeliveryAgentId == deliveryAgentId && x.DeliveredAt != null && !x.IsDeliveryAgentSettled)
+            .ToListAsync(cancellationToken);
+
+    public Task<List<Order>> GetOrdersAvailableForMerchantSettlementAsync(Guid merchantId, CancellationToken cancellationToken = default)
+        => ApplyScope(_dbContext.Orders.AsQueryable())
+            .Where(x => x.MerchantId == merchantId && x.IsDeliveryAgentSettled && !x.IsMerchantSettled && x.DeliveredAt != null)
+            .ToListAsync(cancellationToken);
+
+    public Task<List<Order>> GetOrdersPendingDeliveryAgentSettlementAsync(CancellationToken cancellationToken = default)
+        => ApplyScope(_dbContext.Orders.AsNoTracking())
+            .Where(x => x.DeliveredAt != null && !x.IsDeliveryAgentSettled)
+            .OrderByDescending(x => x.DeliveredAt)
+            .ToListAsync(cancellationToken);
+
+    public Task<List<Order>> GetOrdersAvailableForMerchantSettlementListAsync(CancellationToken cancellationToken = default)
+        => ApplyScope(_dbContext.Orders.AsNoTracking())
+            .Where(x => x.DeliveredAt != null && x.IsDeliveryAgentSettled && !x.IsMerchantSettled)
+            .OrderByDescending(x => x.DeliveredAt)
+            .ToListAsync(cancellationToken);
+
+    public Task<decimal> GetProfitabilitySumAsync(Guid? branchId, CancellationToken cancellationToken = default)
+    {
+        var query = ApplyScope(_dbContext.Orders.AsNoTracking()).Where(x => x.CompanyNetDeliveryProfit.HasValue);
+        if (_requestContext.IsCompanyAdmin && branchId.HasValue)
+        {
+            query = query.Where(x => x.BranchId == branchId.Value);
+        }
+
+        return query.SumAsync(x => x.CompanyNetDeliveryProfit ?? 0m, cancellationToken);
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)

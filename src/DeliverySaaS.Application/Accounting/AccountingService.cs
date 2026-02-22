@@ -1,26 +1,53 @@
 using System.Text.Json;
 using DeliverySaaS.Application.Common.Interfaces;
 using DeliverySaaS.Domain.Accounting.Entities;
+using DeliverySaaS.Domain.Operations.Entities;
+using DeliverySaaS.Domain.Operations.Enums;
 
 namespace DeliverySaaS.Application.Accounting;
 
 public class AccountingService : IAccountingService
 {
     private readonly IAccountingRepository _accountingRepository;
+    private readonly IOrderRepository _orderRepository;
     private readonly IRequestContext _requestContext;
 
-    public AccountingService(IAccountingRepository accountingRepository, IRequestContext requestContext)
+    public AccountingService(IAccountingRepository accountingRepository, IOrderRepository orderRepository, IRequestContext requestContext)
     {
         _accountingRepository = accountingRepository;
+        _orderRepository = orderRepository;
         _requestContext = requestContext;
     }
 
     public async Task<Guid> CreateMerchantSettlementRequestAsync(Guid merchantId, decimal amount, CancellationToken cancellationToken = default)
     {
+        var orders = await _orderRepository.GetOrdersAvailableForMerchantSettlementAsync(merchantId, cancellationToken);
+        if (orders.Count == 0)
+        {
+            throw new InvalidOperationException("No orders available for merchant settlement.");
+        }
+
+        var computedAmount = orders.Sum(x => x.MerchantDueAmount ?? 0m);
+
+        foreach (var order in orders)
+        {
+            order.IsMerchantSettled = true;
+            order.MerchantSettledAt = DateTime.UtcNow;
+
+            await _orderRepository.AddOrderEventAsync(new Domain.Operations.Entities.OrderEvent
+            {
+                OrderId = order.Id,
+                EventType = order.HasReturn ? "MerchantSettledWithReturn" : "MerchantSettled",
+                Notes = JsonSerializer.Serialize(new { order.MerchantDueAmount, order.MerchantSettledAt, order.HasReturn }),
+                EventAt = DateTime.UtcNow,
+                BranchId = RequiredBranchId()
+            }, cancellationToken);
+        }
+
         var entity = new MerchantSettlementRequest
         {
             MerchantId = merchantId,
-            Amount = amount,
+            Amount = computedAmount <= 0 ? amount : computedAmount,
             Status = "Pending",
             BranchId = RequiredBranchId()
         };
@@ -28,6 +55,7 @@ public class AccountingService : IAccountingService
         await _accountingRepository.AddSettlementRequestAsync(entity, cancellationToken);
         await AddAuditAsync("MerchantSettlementRequest", entity.Id, "Create", entity, cancellationToken);
         await _accountingRepository.SaveChangesAsync(cancellationToken);
+        await _orderRepository.SaveChangesAsync(cancellationToken);
         return entity.Id;
     }
 
@@ -82,9 +110,40 @@ public class AccountingService : IAccountingService
             BranchId = RequiredBranchId()
         };
 
+        var orders = await _orderRepository.GetOrdersForDeliveryAgentSettlementAsync(deliveryAgentId, cancellationToken);
+
+        foreach (var order in orders)
+        {
+            order.IsDeliveryAgentSettled = true;
+            order.DeliveryAgentSettledAt = DateTime.UtcNow;
+
+            await _orderRepository.AddOrderEventAsync(new Domain.Operations.Entities.OrderEvent
+            {
+                OrderId = order.Id,
+                EventType = "DeliveryAgentSettled",
+                Notes = JsonSerializer.Serialize(new { order.DeliveryAgentSettledAt }),
+                EventAt = DateTime.UtcNow,
+                BranchId = RequiredBranchId()
+            }, cancellationToken);
+
+            if (order.HasReturn)
+            {
+                order.State = OperationalState.ReturnSortingHub;
+                await _orderRepository.AddOrderEventAsync(new Domain.Operations.Entities.OrderEvent
+                {
+                    OrderId = order.Id,
+                    EventType = "ReturnEnteredHubAfterDeliverySettlement",
+                    Notes = "Returned item entered hub after delivery agent settlement.",
+                    EventAt = DateTime.UtcNow,
+                    BranchId = RequiredBranchId()
+                }, cancellationToken);
+            }
+        }
+
         await _accountingRepository.AddDeliveryReconciliationAsync(entity, cancellationToken);
         await AddAuditAsync("DeliveryReconciliation", entity.Id, "Record", entity, cancellationToken);
         await _accountingRepository.SaveChangesAsync(cancellationToken);
+        await _orderRepository.SaveChangesAsync(cancellationToken);
         return entity.Id;
     }
 
@@ -119,6 +178,15 @@ public class AccountingService : IAccountingService
         await _accountingRepository.SaveChangesAsync(cancellationToken);
         return entity.Id;
     }
+
+    public Task<List<Order>> GetOrdersPendingDeliveryAgentSettlementAsync(CancellationToken cancellationToken = default)
+        => _orderRepository.GetOrdersPendingDeliveryAgentSettlementAsync(cancellationToken);
+
+    public Task<List<Order>> GetOrdersAvailableForMerchantSettlementAsync(CancellationToken cancellationToken = default)
+        => _orderRepository.GetOrdersAvailableForMerchantSettlementListAsync(cancellationToken);
+
+    public Task<decimal> GetCompanyNetDeliveryProfitAsync(Guid? branchId = null, CancellationToken cancellationToken = default)
+        => _orderRepository.GetProfitabilitySumAsync(branchId, cancellationToken);
 
     private async Task AddAuditAsync(string entityName, Guid entityId, string operation, object payload, CancellationToken cancellationToken)
     {

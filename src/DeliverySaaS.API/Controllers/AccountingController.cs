@@ -51,6 +51,46 @@ public class AccountingController : ControllerBase
         return Ok(new { payrollId = id });
     }
 
+
+    [HttpGet("delivery-agent-settlement/pending-orders")]
+    public async Task<IActionResult> PendingDeliveryAgentSettlementOrders(CancellationToken cancellationToken)
+    {
+        var data = await _accountingService.GetOrdersPendingDeliveryAgentSettlementAsync(cancellationToken);
+        return Ok(data.Select(x => new
+        {
+            x.Id,
+            x.OrderNumber,
+            x.DeliveredAt,
+            x.DeliveryFeeApplied,
+            x.DeliveryAgentFeeApplied,
+            x.MerchantDueAmount,
+            x.CompanyNetDeliveryProfit
+        }));
+    }
+
+    [HttpGet("merchant-settlement/available-orders")]
+    public async Task<IActionResult> AvailableMerchantSettlementOrders(CancellationToken cancellationToken)
+    {
+        var data = await _accountingService.GetOrdersAvailableForMerchantSettlementAsync(cancellationToken);
+        return Ok(data.Select(x => new
+        {
+            x.Id,
+            x.OrderNumber,
+            x.DeliveredAt,
+            x.DeliveryFeeApplied,
+            x.DeliveryAgentFeeApplied,
+            x.MerchantDueAmount,
+            x.CompanyNetDeliveryProfit
+        }));
+    }
+
+    [HttpGet("reports/company-net-delivery-profit")]
+    public async Task<IActionResult> CompanyNetDeliveryProfit([FromQuery] Guid? branchId, CancellationToken cancellationToken)
+    {
+        var sum = await _accountingService.GetCompanyNetDeliveryProfitAsync(branchId, cancellationToken);
+        return Ok(new { companyNetDeliveryProfit = sum });
+    }
+
     [HttpPost("expenses")]
     public async Task<IActionResult> CreateExpense([FromBody] CreateExpenseRequest request, CancellationToken cancellationToken)
     {

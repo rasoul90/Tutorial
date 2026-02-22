@@ -24,7 +24,7 @@ public class OrdersController : ControllerBase
     [Authorize(Policy = AuthorizationPolicies.CanTransitionOrders)]
     public async Task<IActionResult> Transition([FromRoute] Guid id, [FromBody] TransitionOrderRequest request, CancellationToken cancellationToken)
     {
-        await _orderService.TransitionAsync(id, request.ToState, cancellationToken);
+        await _orderService.TransitionAsync(id, request.ToState, request.DeliveredWithReturn, cancellationToken);
         return Ok(new { message = "Order transitioned successfully." });
     }
 
@@ -48,6 +48,7 @@ public class OrdersController : ControllerBase
 public class TransitionOrderRequest
 {
     public OperationalState ToState { get; set; }
+    public bool DeliveredWithReturn { get; set; }
 }
 
 public class CreateOrderProblemRequest

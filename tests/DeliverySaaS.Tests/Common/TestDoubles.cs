@@ -4,6 +4,7 @@ using DeliverySaaS.Application.Common.Models;
 using DeliverySaaS.Domain.Accounting.Entities;
 using DeliverySaaS.Domain.Operations.Entities;
 using DeliverySaaS.Domain.Operations.Enums;
+using DeliverySaaS.Domain.Pricing.Entities;
 
 namespace DeliverySaaS.Tests.Common;
 
@@ -22,6 +23,8 @@ public class FakeOrderRepository : IOrderRepository
     public Dictionary<Guid, OrderProblem> Problems { get; } = new();
     public List<OrderEvent> Events { get; } = new();
     public bool HasOpenProblemsResult { get; set; }
+    public List<Order> DeliveryAgentSettlementOrders { get; } = new();
+    public List<Order> MerchantSettlementOrders { get; } = new();
 
     public Task<Order?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => Task.FromResult(Orders.GetValueOrDefault(id));
@@ -71,6 +74,30 @@ public class FakeOrderRepository : IOrderRepository
     public Task<bool> HasOpenProblemsAsync(Guid orderId, CancellationToken cancellationToken = default)
         => Task.FromResult(HasOpenProblemsResult);
 
+
+    public Task<Merchant?> GetMerchantByIdAsync(Guid merchantId, CancellationToken cancellationToken = default)
+        => Task.FromResult<Merchant?>(null);
+
+    public Task<DeliveryAgent?> GetDeliveryAgentByIdAsync(Guid deliveryAgentId, CancellationToken cancellationToken = default)
+        => Task.FromResult<DeliveryAgent?>(new DeliveryAgent { Id = deliveryAgentId, BranchId = Guid.NewGuid(), DeliveryFeePerOrder = 0 });
+
+    public Task<PricingRate?> GetPricingRateAsync(Guid pricingCategoryId, Guid governorateId, CancellationToken cancellationToken = default)
+        => Task.FromResult<PricingRate?>(new PricingRate { PricingCategoryId = pricingCategoryId, GovernorateId = governorateId, Size1Rate = 0, Size2Rate = 0, Size3Rate = 0, Size4Rate = 0, BranchId = Guid.NewGuid() });
+
+    public Task<List<Order>> GetOrdersForDeliveryAgentSettlementAsync(Guid deliveryAgentId, CancellationToken cancellationToken = default)
+        => Task.FromResult(DeliveryAgentSettlementOrders.Where(x => x.DeliveryAgentId == deliveryAgentId).ToList());
+
+    public Task<List<Order>> GetOrdersAvailableForMerchantSettlementAsync(Guid merchantId, CancellationToken cancellationToken = default)
+        => Task.FromResult(MerchantSettlementOrders.Where(x => x.MerchantId == merchantId).ToList());
+
+    public Task<List<Order>> GetOrdersPendingDeliveryAgentSettlementAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult(DeliveryAgentSettlementOrders.Where(x => x.DeliveredAt != null && !x.IsDeliveryAgentSettled).ToList());
+
+    public Task<List<Order>> GetOrdersAvailableForMerchantSettlementListAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult(MerchantSettlementOrders.Where(x => x.DeliveredAt != null && x.IsDeliveryAgentSettled && !x.IsMerchantSettled).ToList());
+
+    public Task<decimal> GetProfitabilitySumAsync(Guid? branchId, CancellationToken cancellationToken = default)
+        => Task.FromResult(0m);
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 }
 

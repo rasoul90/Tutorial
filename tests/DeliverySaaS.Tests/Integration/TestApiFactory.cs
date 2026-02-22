@@ -60,7 +60,7 @@ public class FakeOrderService : IOrderService
 {
     public List<(Guid OrderId, OperationalState ToState)> Calls { get; } = new();
 
-    public Task TransitionAsync(Guid orderId, OperationalState toState, CancellationToken cancellationToken = default)
+    public Task TransitionAsync(Guid orderId, OperationalState toState, bool deliveredWithReturn = false, CancellationToken cancellationToken = default)
     {
         Calls.Add((orderId, toState));
         return Task.CompletedTask;
